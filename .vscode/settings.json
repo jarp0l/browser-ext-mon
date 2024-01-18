@@ -1,0 +1,12 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "nuxtr.vueFiles.firstTag": "template",
+  "nuxtr.vueFiles.script.type": "setup",
+  "nuxtr.openItemsAfterCreation": true
+}
