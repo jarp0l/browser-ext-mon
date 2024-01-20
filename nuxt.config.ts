@@ -8,5 +8,6 @@ export default defineNuxtConfig({
       apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:7000',
       mobile: false
     }
-  }
+  },
+  modules: ['nuxt-icon']
 })
