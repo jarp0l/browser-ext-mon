@@ -8,7 +8,7 @@ import streamlit as st
 from streamlit_app.utils.init_redis import r
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8090/api")
-TOKEN_EXPIRY = os.getenv("TOKEN_EXPIRY", 1209600)
+AUTH_TOKEN_EXPIRY = os.getenv("AUTH_TOKEN_EXPIRY", 86400)
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -89,7 +89,7 @@ class LoginForm(AuthForm):
 
     def set_logged_in(self, token: str):
         st.session_state["bem-token"] = token
-        r.set("bem-token", token, ex=1209600)
+        r.set("bem-token", token, ex=AUTH_TOKEN_EXPIRY)
 
     def logout(self):
         r.delete("bem-token")
