@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "bierner.docs-view",
+        "charliermarsh.ruff",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "kevinrose.vsc-python-indent",
+        "tamasfe.even-better-toml"
+    ]
+}
