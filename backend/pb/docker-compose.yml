@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  bem-pb-be:
+    container_name: bem-pb-be
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bem-pb-be:latest
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pb_data:/pb_data
+    networks:
+      - bem-net
+    healthcheck: #optional (recommended) since v0.10.0
+      test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bem-mailpit:
+    image: axllent/mailpit:v1.13
+    container_name: bem-mailpit
+    restart: unless-stopped
+    volumes:
+      - ./mailpit_data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATA_FILE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - bem-net
+
+networks:
+  bem-net:
+    driver: bridge

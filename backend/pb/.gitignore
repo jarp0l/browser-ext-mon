@@ -20,5 +20,6 @@
 # Go workspace file
 go.work
 
-# Pocketbase-related
+# Docker volume data
 pb_data/
+mailpit_data/
