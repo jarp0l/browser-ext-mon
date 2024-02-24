@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "osquery-be"
+version = "0.1.0"
+description = ""
+authors = ["jarp0l <57973356+jarp0l@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "~0.109.2"
+uvicorn = {version = "~0.27.1", extras = ["standard"]}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
