@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: bem-pb-be:latest
-    restart: unless-stopped
+    restart: never
     ports:
       - "8090:8090"
     volumes:
@@ -23,7 +23,7 @@ services:
   bem-mailpit:
     image: axllent/mailpit:v1.13
     container_name: bem-mailpit
-    restart: unless-stopped
+    restart: never
     volumes:
       - ./mailpit_data:/data
     ports:
