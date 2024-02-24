@@ -11,6 +11,9 @@ fastapi = "~0.109.2"
 uvicorn = {version = "~0.27.1", extras = ["standard"]}
 
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.2.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

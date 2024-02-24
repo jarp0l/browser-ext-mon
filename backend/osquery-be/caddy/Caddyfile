@@ -1,0 +1,4 @@
+localhost:443 {
+	reverse_proxy osquery_be:8008
+	tls internal
+}

@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  caddy:
+    image: caddy:2.7.6-alpine
+    container_name: bem-caddy
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/caddy/caddy_data:/data
+      - $PWD/caddy/caddy_config:/config
+    networks:
+      - bem-net
+    depends_on:
+      - osquery_be
+
+  osquery_be:
+    container_name: bem-osquery-be
+    build:
+      context: .
+      dockerfile: Dockerfile # by default builds 'dev' image
+    image: bem-osquery-be:latest
+    restart: unless-stopped
+    networks:
+      - bem-net
+
+networks:
+  bem-net:

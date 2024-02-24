@@ -12,6 +12,11 @@ async def read_root():
     return {"Hello": "World"}
 
 
+@app.get("/healthz")
+async def get_health():
+    return "OK"
+
+
 @app.post("/enroll")
 async def enroll(req: Request):
     print(await req.json())
