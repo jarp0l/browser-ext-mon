@@ -2,6 +2,16 @@
 
 ## Development
 
+### Start caddy and API server (with Docker)
+
+```sh
+docker compose up --build
+```
+
+The server is accessible on https://osquery.localhost
+
+### Start only API server (without Docker)
+
 1. Copy `.env.example` to `.env`
 
 ```sh
@@ -21,5 +31,5 @@ This will create a virtual environment in the project's root directory (`.venv`)
 4. Run the API server:
 
 ```sh
-poetry run uvicorn osquery_be.main:app --reload --host 0.0.0.0 --port 8008 --log-level debug
+poetry run uvicorn osquery_be.main:app --reload --host=0.0.0.0 --port=8008 --log-level=debug
 ```
