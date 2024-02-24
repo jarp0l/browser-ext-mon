@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	_ "github.com/jarp0l/browser-ext-mon/backend/pb/migrations"
+	pb_osquery "github.com/jarp0l/browser-ext-mon/backend/pb/osquery"
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -27,12 +28,18 @@ func main() {
 		Automigrate: isGoRun,
 	})
 
-	// serves static files from the provided public dir (if exists)
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		e.Router.GET("/healthz", func(c echo.Context) error {
 			return c.String(http.StatusOK, "OK")
 		}, apis.ActivityLogger(app))
+
+		e.Router.POST("/osquery/enroll", pb_osquery.Enroll)
+		e.Router.GET("/osquery/config", pb_osquery.GetConfig)
+		e.Router.POST("/osquery/config", pb_osquery.PostConfig)
+
+		// serves static files from the provided public dir (if exists)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
+
 		return nil
 	})
 
