@@ -1,0 +1,23 @@
+POST http://localhost:8090/osquery/enroll HTTP/1.1
+Content-Type: application/json
+
+{
+    "host_identifier": "uuid",
+    "enroll": true,
+}
+
+###
+
+POST http://localhost:8090/osquery/config HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "sample",
+}
+
+###
+
+GET http://localhost:8090/osquery/config HTTP/1.1
+Content-Type: application/json
+
+###
