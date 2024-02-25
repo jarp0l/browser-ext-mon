@@ -1,0 +1,17 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/frontend/streamlit-app" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/backend/pb" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/bem-cli" # Location of package manifests
+    schedule:
+      interval: "weekly"
