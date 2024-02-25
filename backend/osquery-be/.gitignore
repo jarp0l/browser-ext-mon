@@ -163,8 +163,6 @@ cython_debug/
 ## Files and directories created by caddy docker container
 caddy/site/
 caddy/caddy_config/
-# ignore all files and directories in caddy_data except pki/authorities/local/
-caddy/caddy_data/caddy/certificates/
-caddy/caddy_data/caddy/locks
-caddy/caddy_data/caddy/*.*
-!caddy/caddy_data/caddy/pki/authorities/local/
+# ignore all files and directories in caddy_data except root certs
+caddy/caddy_data/
+!caddy/caddy_data/caddy/pki/authorities/local/root.*
