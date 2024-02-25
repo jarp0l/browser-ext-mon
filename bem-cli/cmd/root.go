@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Prajwol Pradhan <57973356+jarp0l@users.noreply.github.com>
 */
 package cmd
 
