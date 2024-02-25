@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: caddy/Dockerfile
     image: bem-caddy:latest
-    restart: unless-stopped
+    restart: on-failure
     cap_add:
       - NET_ADMIN
     ports:
@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: Dockerfile # by default builds 'dev' image
     image: bem-osquery-be:latest
-    restart: unless-stopped
+    restart: on-failure
     networks:
       - bem-net
 
