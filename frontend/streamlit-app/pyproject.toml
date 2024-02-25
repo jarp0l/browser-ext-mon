@@ -14,7 +14,7 @@ redis = "^5.0.1"
 
 [tool.poetry.group.dev.dependencies]
 watchdog = "^3.0.0"
-ruff = "^0.1.14"
+ruff = "^0.2.2"
 
 [build-system]
 requires = ["poetry-core"]
