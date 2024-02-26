@@ -1,0 +1,64 @@
+direction: left
+
+# admin users
+users: {
+  shape: sql_table
+  id: int {constraint: PK}
+  name: string
+  email: string {constraint: [UNQ; not_null]}
+  password: string {constraint: not_null}
+}
+
+organizations: {
+  shape: sql_table
+  id: int {constraint: PK}
+  admin_id: string {constraint: [FK; cascade_on_delete]}
+  name: string
+  api_key: string {constraint: [UNQ; not_null]}
+}
+
+organizations.admin_id -> users.email
+
+# users/machines in the organization
+# this is where osquery enroll data is stored
+nodes: {
+  shape: sql_table
+  id: int {constraint: PK}
+  org_id: int {constraint: [FK; cascade_on_delete]}
+  email: string
+  uuid: string {constraint: [UNQ; not_null]}
+}
+
+nodes.org_id -> organizations.id
+
+# osquery logs for firefox browser extensions
+# schema: https://osquery.io/schema/5.11.0/#firefox_addons
+firefox_extensions: {
+  shape: sql_table
+  id: int {constraint: PK}
+  node_id: int {constraint: [FK; cascade_on_delete]}
+  uid: bigint
+  name: string
+  identifier: string
+  creator: string
+  type: string
+  version: string
+  description: string
+  source_url: string
+  visible: int
+  active: int
+  disabled: int
+  autoupdate: int
+  location: string
+  path: string
+}
+
+firefox_extensions.node_id -> nodes.id
+
+chrome_extensions: {
+  shape: sql_table
+  id: int {constraint: PK}
+  node_id: int {constraint: [FK; cascade_on_delete]}
+}
+
+chrome_extensions.node_id -> nodes.id
