@@ -17,13 +17,13 @@ async def get_health():
     return "OK"
 
 
-@app.post("/enroll")
+@app.post("/osquery/enroll")
 async def enroll(req: Request):
     print(await req.json())
     return constants.ENROLL_RESPONSE
 
 
-@app.get("/config")
+@app.get("/osquery/config")
 async def get_config(req: Request):
     try:
         print(await req.json())
@@ -32,13 +32,13 @@ async def get_config(req: Request):
     return constants.EXAMPLE_NODE_CONFIG
 
 
-@app.post("/config")
+@app.post("/osquery/config")
 async def post_config(req: Request):
     print(await req.json())
     return constants.EXAMPLE_CONFIG
 
 
-@app.post("/logger")
+@app.post("/osquery/logger")
 async def logger(req: Request):
     print(await req.json())
     return {}
