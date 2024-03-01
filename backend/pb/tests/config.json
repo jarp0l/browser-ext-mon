@@ -1,0 +1,12 @@
+{
+  "options": {
+    "host_identifier": "uuid"
+  },
+  "schedule": {
+    "ff_addons": {
+      "query": "select identifier, source_url name from firefox_addons where source_url<>'null' limit 2;",
+      "interval": 5
+    }
+  },
+  "log_type": "result"
+}
