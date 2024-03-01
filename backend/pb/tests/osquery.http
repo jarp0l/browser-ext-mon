@@ -2,8 +2,8 @@ POST http://localhost:8090/osquery/enroll HTTP/1.1
 Content-Type: application/json
 
 {
-    "host_identifier": "uuid",
-    "enroll": true,
+    "api_key": "12345",
+    "admin_email": "admin@localhost.dev"
 }
 
 ###
@@ -12,7 +12,7 @@ POST http://localhost:8090/osquery/config HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "sample",
+    "name": "sample"
 }
 
 ###
