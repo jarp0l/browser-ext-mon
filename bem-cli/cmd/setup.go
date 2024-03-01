@@ -54,7 +54,7 @@ func setup() {
 	viper.GetViper().Set("api_key", apiKey)
 	viper.GetViper().Set("owner_email", ownerEmail)
 	if err := viper.GetViper().WriteConfig(); err != nil {
-		log.Error("Error writing configuration file: ", err)
+		log.Error(err)
 		return
 	}
 
