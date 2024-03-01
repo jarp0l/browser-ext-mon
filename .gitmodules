@@ -1,0 +1,3 @@
+[submodule "ai-engine/extension-automate-test/little-rat"]
+	path = ai-engine/extension-automate-test/extensions/little-rat
+	url = git@github.com:dnakov/little-rat.git
