@@ -49,6 +49,11 @@ RUN apt-get update \
     curl \
     # deps for building python deps
     build-essential \
+    # install infisical
+    && curl -1sLf \
+    'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
+    && apt-get install --no-install-recommends -y infisical \
+    && which infisical \
     && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
@@ -85,7 +90,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 EXPOSE 8008
-ENTRYPOINT ["uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
+ENTRYPOINT ["infisical", "run", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
 
 
 ################################
@@ -98,4 +103,4 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./osquery_be /app/osquery_be
 WORKDIR /app
 EXPOSE 8501
-ENTRYPOINT ["uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]
+ENTRYPOINT ["infisical", "run", "--", "uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]

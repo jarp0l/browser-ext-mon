@@ -31,6 +31,8 @@ services:
     restart: on-failure
     networks:
       - bem-net
+    environment:
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN_FOR_API}
 
 networks:
   bem-net:
