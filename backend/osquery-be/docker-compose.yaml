@@ -32,7 +32,7 @@ services:
     networks:
       - bem-net
     environment:
-      - INFISICAL_TOKEN=${INFISICAL_TOKEN_FOR_API}
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
 
 networks:
   bem-net:

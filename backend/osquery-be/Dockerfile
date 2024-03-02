@@ -53,7 +53,6 @@ RUN apt-get update \
     && curl -1sLf \
     'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
     && apt-get install --no-install-recommends -y infisical \
-    && which infisical \
     && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
@@ -82,6 +81,7 @@ WORKDIR $PYSETUP_PATH
 # copy in our built poetry + venv
 COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base /usr/bin/infisical /usr/bin/infisical
 
 # quicker install as runtime deps are already installed
 RUN --mount=type=cache,target=/root/.cache \
@@ -100,6 +100,7 @@ ENTRYPOINT ["infisical", "run", "--","uvicorn", "osquery_be.main:app", "--reload
 FROM python-base as prod
 ENV APP_ENV=prod
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base /usr/bin/infisical /usr/bin/infisical
 COPY ./osquery_be /app/osquery_be
 WORKDIR /app
 EXPOSE 8501
