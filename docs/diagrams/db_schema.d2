@@ -25,7 +25,7 @@ nodes: {
   shape: sql_table
   id: int {constraint: PK}
   org_id: int {constraint: [FK; cascade_on_delete]}
-  email: string
+  owner_email: string
   uuid: string {constraint: [UNQ; not_null]}
 }
 
