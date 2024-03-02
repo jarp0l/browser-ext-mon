@@ -55,10 +55,38 @@ firefox_extensions: {
 
 firefox_extensions.node_id -> nodes.id
 
+# schema: https://osquery.io/schema/5.11.0/#chrome_extensions"
 chrome_extensions: {
   shape: sql_table
   id: int {constraint: PK}
   node_id: int {constraint: [FK; cascade_on_delete]}
+  browser_type: string
+  uid: bigint
+  name: string
+  profile: string
+  profile_path: string
+  referenced_identifier: string
+  identifier: string
+  version: string
+  description: string
+  default_locale: string
+  current_locale: string
+  update_url: string
+  author: string
+  persistent: int
+  path: string
+  permissions: string
+  permissions_json: string 
+  optional_permissions: string
+  optional_permissions_json: string 
+  manifest_hash: string
+  referenced: bigint
+  from_webstore: string
+  state: string
+  install_time: string
+  install_timestamp: bigint
+  manifest_json: string 
+  key: string 
 }
-
 chrome_extensions.node_id -> nodes.id
+
