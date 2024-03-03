@@ -90,7 +90,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 EXPOSE 8008
-ENTRYPOINT ["infisical", "run", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
+ENTRYPOINT ["infisical", "run", "--env=dev", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
 
 
 ################################
