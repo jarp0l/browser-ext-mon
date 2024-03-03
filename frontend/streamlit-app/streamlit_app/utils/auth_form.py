@@ -7,8 +7,8 @@ import streamlit as st
 
 from streamlit_app.utils.init_redis import r
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8090/api")
-AUTH_TOKEN_EXPIRY = os.getenv("AUTH_TOKEN_EXPIRY", 86400)
+API_BASE_URL = os.getenv("PB_API_URL", "http://localhost:8090/api")
+AUTH_TOKEN_EXPIRY = os.getenv("ST_AUTH_TOKEN_EXPIRY", 86400)
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -119,10 +119,6 @@ class SignupForm(AuthForm):
         self.org_name = st.text_input(
             ":blue[Organization Name]", placeholder="Enter your organization name"
         )
-        self.org_slug = st.text_input(
-            ":blue[Organization Slug]",
-            placeholder="Enter short name for your organization",
-        )
 
     def handle_form_submit(self):
         with st.spinner("Signing up..."):
@@ -133,31 +129,14 @@ class SignupForm(AuthForm):
                     "email": self.email,
                     "password": self.password,
                     "passwordConfirm": self.password_confirm,
+                    "org_name": self.org_name
                 },
             )
             if res1 != {}:
-                st.success("Signup successful!")
+                st.success("Signup successful! You can login now! 😃")
             else:
                 st.error("Signup Failed! 😞")
                 return
-
-        with st.spinner("Creating organization..."):
-            res2 = self.make_request(
-                "post",
-                "/collections/organizations/records",
-                {
-                    "orgSlug": self.org_slug,
-                    "orgName": self.org_name,
-                    # "email": self.email,
-                },
-            )
-            if res2 != {}:
-                st.success("Organization created!")
-            else:
-                st.error("Organization could not be created! 😞")
-                return
-
-        st.success("Signed you up and created your organization. You can login now! 😃")
         time.sleep(1)
 
 
