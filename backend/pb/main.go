@@ -11,6 +11,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/pocketbase/pocketbase/tools/security"
 )
@@ -36,10 +37,39 @@ func main() {
 		return nil
 	})
 
-	app.OnRecordBeforeCreateRequest().Add(func(e *core.RecordCreateEvent) error {
-		if e.Record.TableName() == "organizations" {
-			apiKey := security.RandomString(10)
-			e.Record.Set("api_key", apiKey)
+	// only fire when a record on "users" collection is created
+	app.OnRecordBeforeCreateRequest("users").Add(func(e *core.RecordCreateEvent) error {
+		organizations_collection, err := app.Dao().FindCollectionByNameOrId("organizations")
+		if err != nil {
+			return err
+		}
+
+		organizations_record := models.NewRecord(organizations_collection)
+		organizations_record.Set("name", e.Record.Get("org_name"))
+		// admin_email is redundant, but it's used to find the organization record after the user is created
+		// we can't set admin_id yet as the user record is not created yet
+		organizations_record.Set("admin_email", e.Record.Get("email"))
+
+		if err := app.Dao().SaveRecord(organizations_record); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// only fire when a record on "users" collection is created
+	app.OnRecordAfterCreateRequest("users").Add(func(e *core.RecordCreateEvent) error {
+		organizations_record, err := app.Dao().FindFirstRecordByData("organizations", "admin_email", e.Record.Get("email"))
+		if err != nil {
+			return err
+		}
+
+		organizations_record.Set("admin_id", e.Record.Get("id"))
+		apiKey := security.RandomString(16)
+		organizations_record.Set("api_key", apiKey)
+
+		if err := app.Dao().SaveRecord(organizations_record); err != nil {
+			return err
 		}
 		return nil
 	})

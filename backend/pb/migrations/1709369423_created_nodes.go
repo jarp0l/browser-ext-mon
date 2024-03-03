@@ -12,27 +12,54 @@ import (
 func init() {
 	m.Register(func(db dbx.Builder) error {
 		jsonData := `{
-			"id": "33qsslnyye3uscm",
-			"created": "2024-02-05 18:48:07.313Z",
-			"updated": "2024-02-05 18:48:07.313Z",
-			"name": "endpoints",
+			"id": "1l9pedzcwc3pf4x",
+			"created": "2024-03-02 08:50:23.643Z",
+			"updated": "2024-03-02 08:50:23.643Z",
+			"name": "nodes",
 			"type": "base",
 			"system": false,
 			"schema": [
 				{
 					"system": false,
-					"id": "nr4jaerz",
-					"name": "organization",
+					"id": "tqygpayg",
+					"name": "org_id",
 					"type": "relation",
-					"required": true,
+					"required": false,
 					"presentable": false,
 					"unique": false,
 					"options": {
 						"collectionId": "bxllu29bavy3izv",
-						"cascadeDelete": true,
+						"cascadeDelete": false,
 						"minSelect": null,
 						"maxSelect": 1,
 						"displayFields": null
+					}
+				},
+				{
+					"system": false,
+					"id": "gc9bealk",
+					"name": "owner_email",
+					"type": "email",
+					"required": false,
+					"presentable": false,
+					"unique": false,
+					"options": {
+						"exceptDomains": null,
+						"onlyDomains": null
+					}
+				},
+				{
+					"system": false,
+					"id": "qdmdefej",
+					"name": "uuid",
+					"type": "text",
+					"required": false,
+					"presentable": false,
+					"unique": false,
+					"options": {
+						"min": null,
+						"max": null,
+						"pattern": ""
 					}
 				}
 			],
@@ -54,7 +81,7 @@ func init() {
 	}, func(db dbx.Builder) error {
 		dao := daos.New(db);
 
-		collection, err := dao.FindCollectionByNameOrId("33qsslnyye3uscm")
+		collection, err := dao.FindCollectionByNameOrId("1l9pedzcwc3pf4x")
 		if err != nil {
 			return err
 		}

@@ -1,11 +1,10 @@
 package migrations
 
 import (
-	"encoding/json"
-
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/daos"
 	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/pocketbase/pocketbase/tools/types"
 )
 
 func init() {
@@ -17,9 +16,7 @@ func init() {
 			return err
 		}
 
-		json.Unmarshal([]byte(`[
-			"CREATE UNIQUE INDEX ` + "`" + `idx_G9dh1kY` + "`" + ` ON ` + "`" + `organizations` + "`" + ` (` + "`" + `slug` + "`" + `)"
-		]`), &collection.Indexes)
+		collection.ListRule = types.Pointer("@request.headers.x_service_token = @collection.internal_services.service_token")
 
 		return dao.SaveCollection(collection)
 	}, func(db dbx.Builder) error {
@@ -30,9 +27,7 @@ func init() {
 			return err
 		}
 
-		json.Unmarshal([]byte(`[
-			"CREATE UNIQUE INDEX ` + "`" + `idx_G9dh1kY` + "`" + ` ON ` + "`" + `organizations` + "`" + ` (\n  ` + "`" + `slug` + "`" + `,\n  ` + "`" + `admin` + "`" + `\n)"
-		]`), &collection.Indexes)
+		collection.ListRule = types.Pointer("@request.headers.x_api_token = @collection.internal_services.api_token")
 
 		return dao.SaveCollection(collection)
 	})

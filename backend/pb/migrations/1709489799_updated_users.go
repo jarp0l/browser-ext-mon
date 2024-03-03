@@ -6,6 +6,7 @@ import (
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/daos"
 	m "github.com/pocketbase/pocketbase/migrations"
+	"github.com/pocketbase/pocketbase/models/schema"
 )
 
 func init() {
@@ -17,9 +18,23 @@ func init() {
 			return err
 		}
 
-		json.Unmarshal([]byte(`[
-			"CREATE UNIQUE INDEX ` + "`" + `idx_bI9GdG5` + "`" + ` ON ` + "`" + `users` + "`" + ` (` + "`" + `email` + "`" + `)"
-		]`), &collection.Indexes)
+		// add
+		new_org_name := &schema.SchemaField{}
+		json.Unmarshal([]byte(`{
+			"system": false,
+			"id": "ziakapbr",
+			"name": "org_name",
+			"type": "text",
+			"required": false,
+			"presentable": false,
+			"unique": false,
+			"options": {
+				"min": null,
+				"max": null,
+				"pattern": ""
+			}
+		}`), new_org_name)
+		collection.Schema.AddField(new_org_name)
 
 		return dao.SaveCollection(collection)
 	}, func(db dbx.Builder) error {
@@ -30,10 +45,8 @@ func init() {
 			return err
 		}
 
-		json.Unmarshal([]byte(`[
-			"CREATE INDEX ` + "`" + `idx_KHyBk7n` + "`" + ` ON ` + "`" + `users` + "`" + ` (` + "`" + `email` + "`" + `)",
-			"CREATE UNIQUE INDEX ` + "`" + `idx_bI9GdG5` + "`" + ` ON ` + "`" + `users` + "`" + ` (` + "`" + `email` + "`" + `)"
-		]`), &collection.Indexes)
+		// remove
+		collection.Schema.RemoveField("ziakapbr")
 
 		return dao.SaveCollection(collection)
 	})
