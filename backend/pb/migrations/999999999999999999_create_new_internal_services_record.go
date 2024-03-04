@@ -19,7 +19,7 @@ func init() {
 
 		record := models.NewRecord(collection)
 		record.Set("service_name", "osquery-be")
-		record.Set("api_token", "osquery-be")
+		record.Set("service_token", "osquery-be")
 
 		return dao.SaveRecord(record)
 	}, func(db dbx.Builder) error {
