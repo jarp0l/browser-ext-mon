@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "pnpm dev",
+      "name": "Run pnpm dev",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "name": "Launch WebExtension",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "reloadOnChange": {
+        "watch": ["${workspaceFolder}/build/firefox-mv2-dev/**"]
+      },
+      "addonPath": "${workspaceFolder}/build/firefox-mv2-dev"
+    }
+  ]
+}
