@@ -19,24 +19,6 @@ func init() {
 		}
 
 		// add
-		new_browser_type := &schema.SchemaField{}
-		json.Unmarshal([]byte(`{
-			"system": false,
-			"id": "ksn9fd49",
-			"name": "browser_type",
-			"type": "text",
-			"required": false,
-			"presentable": false,
-			"unique": false,
-			"options": {
-				"min": null,
-				"max": null,
-				"pattern": ""
-			}
-		}`), new_browser_type)
-		collection.Schema.AddField(new_browser_type)
-
-		// add
 		new_uid := &schema.SchemaField{}
 		json.Unmarshal([]byte(`{
 			"system": false,
