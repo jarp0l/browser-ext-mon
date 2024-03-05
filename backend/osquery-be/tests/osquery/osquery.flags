@@ -7,6 +7,6 @@
 --enroll_tls_endpoint=/osquery/enroll \
 --logger_tls_endpoint=/osquery/logger \
 --config_tls_endpoint=/osquery/config \
---tls_server_certs=$(pwd)/caddy/caddy_data/caddy/pki/authorities/local/root.crt \
+--tls_server_certs=caddy/caddy_data/caddy/pki/authorities/local/root.crt \
 --ephemeral \
 --disable_database
