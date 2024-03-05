@@ -1,122 +1,68 @@
-import os
+import json
 import logging
-import httpx
-from osquery_be.schemas import EnrollRequestSchema
+import os
 
-PB_API_URL = os.getenv("PB_API_URL", "http://localhost:8090/api")
+import httpx
+
+from osquery_be.schemas import EnrollRequest, EnrollResponse
+from osquery_be.utils.exceptions import InvalidAPIKeyException
+
+# host.docker.internal is a special DNS name which resolves to the internal IP address used by the host
+# We need this to connect to backen/pb instance running on the host machine
+PB_API_URL = os.getenv("PB_API_DOCKER_URL", "http://localhost:8090/api")
 SERVICE_TOKEN = os.getenv("PB_OSQUERY_SERVICE_TOKEN", "osquery-be")
 
 
-def enroll_node(enroll_req: EnrollRequestSchema):
-    enroll_secret = enroll_req.enroll_secret
+def enroll_node(enroll_request: EnrollRequest):
+    enroll_secret = json.loads(enroll_request.enroll_secret)
     api_key = enroll_secret["api_key"]
     owner_email = enroll_secret["owner_email"]
-    host_identifier = enroll_req.host_identifier
+    host_identifier = enroll_request.host_identifier
 
     headers = {
         "X-SERVICE-TOKEN": SERVICE_TOKEN,
     }
 
-    session = httpx.Session()
     try:
-        search_orgs = session.get(
+        client = httpx.Client()
+
+        # Check if the api_key is valid
+        search_orgs = client.get(
             f"{PB_API_URL}/collections/organizations/records",
             headers=headers,
             params={"filter": f"(api_key='{api_key}')"},
-        )
-        search_orgs = search_orgs.json()
-        if search_orgs["totalItems"] != 1:
-            return {}
+        ).json()
 
-        search_nodes = session.get(
+        # If api_key belongs to any organization, totalItems will be 1
+        if search_orgs["totalItems"] != 1:
+            raise InvalidAPIKeyException
+
+        # Check if the node is already enrolled
+        search_nodes = client.get(
             f"{PB_API_URL}/collections/nodes/records",
             headers=headers,
             params={"filter": f"(uuid='{host_identifier}')"},
-        )
-        search_nodes = search_nodes.json()
+        ).json()
+
+        # If node is already enrolled, totalItems will be 1
         if search_nodes["totalItems"] != 1:
-            create_node = session.post(
+            # Create a new node since there is no node with the given host_identifier/uuid
+            _ = client.post(
                 f"{PB_API_URL}/collections/nodes/records",
                 headers=headers,
-                body={
+                json={
                     "uuid": host_identifier,
-                    "org_id": search_orgs["items"]["id"],
+                    "org_id": search_orgs["items"][0]["id"],
                     "owner_email": owner_email,
                 },
-            )
-            create_node = create_node.json()
+            ).json()
+        return EnrollResponse(node_key=host_identifier)
+
+    except InvalidAPIKeyException:
+        logging.exception("Invalid API Key")
+        return EnrollResponse(node_key="")
 
     except Exception as exc:
+        logging.exception("Unexpected error during enrollment")
         logging.exception(exc)
-        return {}
-
-    return
-
-
-def enroll(api_key):
-    url = f"{PB_API_URL}/collections/organizations/records"
-    headers = {
-        "X-SERVICE-TOKEN": SERVICE_TOKEN,
-    }
-    params = {"filter": f"(api_key='{api_key}')"}
-
-    try:
-        response = httpx.get(url, headers=headers, params=params)
-        response.raise_for_status()
-        data = response.json()
-        return data["totalItems"]
-
-    except httpx.HTTPStatusError as e:
-        print(f"HTTP error occurred: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-    return None
-
-
-def test_endpoint(org_id):
-    # Example of testing an endpoint with the organization ID
-    url = f"{PB_API_URL}/collections/nodes/records"
-    params = {"filter": f"(uuid='{uuid}')"}
-    headers = {
-        "X-SERVICE-TOKEN": SERVICE_TOKEN,
-    }
-    response = httpx.get(url, headers=headers, params=params)
-    try:
-        response.raise_for_status()
-        data = response.json()
-        items = data.get("items", [])
-        for item in items:
-            print("Collection ID:", item.get("collectionId"))
-            print("Collection Name:", item.get("collectionName"))
-            print("Created:", item.get("created"))
-            print("ID:", item.get("id"))
-            print("Org ID:", item.get("org_id"))
-            print("Owner Email:", item.get("owner_email"))
-            print("Updated:", item.get("updated"))
-            print("UUID:", item.get("uuid"))
-            print()
-        return data["totalItems"]
-        # Process data from the endpoint
-        print("Response from endpoint:")
-        print(data)
-    except httpx.HTTPStatusError as e:
-        print(f"HTTP error occurred: {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-if __name__ == "__main__":
-    # Example usage
-    api_key = "mW9oUTfiryOJvZPX"
-    uuid = "fdsa"
-
-    # org_id = enroll(api_key)
-    total_org_item = enroll(api_key)
-    if total_org_item > 0:
-        total_node_item = test_endpoint(uuid)
-        if total_node_item > 0:
-            print(total_node_item)
-
-    else:
-        print("organization does not exist")
+        return EnrollResponse(node_key="")
