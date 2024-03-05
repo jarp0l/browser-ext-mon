@@ -90,7 +90,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 EXPOSE 8008
-ENTRYPOINT ["infisical", "run", "--env=dev", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
+CMD ["infisical", "run", "--env=dev", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
 
 
 ################################
@@ -103,5 +103,5 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY --from=builder-base /usr/bin/infisical /usr/bin/infisical
 COPY ./osquery_be /app/osquery_be
 WORKDIR /app
-EXPOSE 8501
-ENTRYPOINT ["infisical", "run", "--", "uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]
+EXPOSE 8008
+CMD ["infisical", "run", "--env=prod", "--", "uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]
