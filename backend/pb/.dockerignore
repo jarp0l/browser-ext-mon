@@ -1,0 +1,6 @@
+.gitignore
+docker-compose.yml
+Dockerfile
+README.md
+pb_data
+mailpit_data

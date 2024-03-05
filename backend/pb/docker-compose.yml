@@ -1,12 +1,12 @@
 version: "3"
 
 services:
-  bem-pb-be:
-    container_name: bem-pb-be
+  bem-pb:
+    container_name: bem-pb
     build:
       context: .
       dockerfile: Dockerfile
-    image: bem-pb-be:latest
+    image: bem-pb:latest
     restart: on-failure
     ports:
       - "8090:8090"
