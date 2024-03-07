@@ -2,9 +2,13 @@ import json
 import logging
 
 import httpx
-from osquery_be.config import settings
-from osquery_be.schemas import EnrollRequest, EnrollResponse, EnrollSecret
-from osquery_be.utils.exceptions import InvalidAPIKeyException
+from osquery_be.settings import settings
+from osquery_be.schemas.enroll_schemas import (
+    EnrollRequest,
+    EnrollResponse,
+    EnrollSecret,
+)
+from osquery_be.osquery.exceptions import InvalidAPIKeyException
 
 
 def enroll_node(enroll_req: EnrollRequest):
@@ -51,10 +55,10 @@ def enroll_node(enroll_req: EnrollRequest):
                     "owner_email": owner_email,
                 },
             ).json()
-        return EnrollResponse(node_key=host_identifier)
+        return EnrollResponse(node_key=host_identifier, node_invalid=False)
 
     except InvalidAPIKeyException:
-        logging.debug("Invalid API Key")
+        logging.debug("Invalid API Key.")
         return EnrollResponse(node_invalid=True)
 
     # If the backend/pb is not running, httpx.ConnectError will be raised
@@ -63,6 +67,6 @@ def enroll_node(enroll_req: EnrollRequest):
         return EnrollResponse(node_invalid=True)
 
     except Exception as exc:
-        logging.exception("Unexpected error during enrollment")
+        logging.exception("Unexpected error during enrollment.")
         logging.exception(exc)
         return EnrollResponse(node_invalid=True)

@@ -1,10 +1,11 @@
-import json
+from fastapi import FastAPI
 
-from fastapi import FastAPI, Request
-
-import osquery_be.constants as constants
-from osquery_be.schemas import EnrollRequest, EnrollResponse
-from osquery_be.utils.enroll import enroll_node
+from osquery_be.osquery.config import get_config
+from osquery_be.osquery.enroll import enroll_node
+from osquery_be.osquery.logger import store_logs
+from osquery_be.schemas.config_schemas import ConfigRequest, ConfigResponse
+from osquery_be.schemas.enroll_schemas import EnrollRequest, EnrollResponse
+from osquery_be.schemas.logger_schemas import LoggerRequest, LoggerResponse
 
 app = FastAPI()
 
@@ -25,22 +26,13 @@ async def enroll(enroll_req: EnrollRequest):
     return res
 
 
-@app.get("/osquery/config")
-async def get_config(req: Request):
-    try:
-        print(await req.json())
-    except json.decoder.JSONDecodeError:
-        print(req)
-    return constants.EXAMPLE_NODE_CONFIG
+@app.post("/osquery/config", response_model=ConfigResponse)
+async def post_config(config_req: ConfigRequest):
+    res = get_config(config_req)
+    return res
 
 
-@app.post("/osquery/config")
-async def post_config(req: Request):
-    print(await req.json())
-    return constants.EXAMPLE_CONFIG
-
-
-@app.post("/osquery/logger")
-async def logger(req: Request):
-    print(await req.json())
-    return {}
+@app.post("/osquery/logger", response_model=LoggerResponse)
+async def logger(logger_req: LoggerRequest):
+    res = store_logs(logger_req)
+    return res

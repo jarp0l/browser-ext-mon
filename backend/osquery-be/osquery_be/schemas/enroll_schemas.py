@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 
 class EnrollSecret(BaseModel):
     api_key: str
-    owner_email: EmailStr | str = ""  # owner_email is optional
+    owner_email: Annotated[EmailStr | str, "owner_email is optional"] = ""
 
     model_config = {
         "json_schema_extra": {

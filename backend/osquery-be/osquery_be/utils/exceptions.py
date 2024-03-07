@@ -1,2 +1,0 @@
-class InvalidAPIKeyException(Exception):
-    pass
