@@ -1,0 +1,19 @@
+GET http://localhost:8090/api/collections/organizations/records?filter=(api_key='mW9oUTfiryOJvZPX')
+X-SERVICE-TOKEN: osquery-be
+
+###
+
+GET http://localhost:8090/api/collections/nodes/records?filter=(uuid='fdsa')
+X-SERVICE-TOKEN: osquery-be
+
+###
+
+POST http://localhost:8090/api/collections/nodes/records
+X-SERVICE-TOKEN: osquery-be
+Content-Type: application/json
+
+{
+    "uuid":"fdsa",
+    "org_id":"2mlklqcelr3w5av",
+    "owner_email": "asdf@45d.uiuh"
+}

@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "hostIdentifier": "462C6BD9-46C4-54DF-9220-6FFBA7C21AC6",
+      "calendarTime": "Fri Mar  1 13:45:25 2024 UTC",
+      "unixTime": 1709300725,
+      "severity": 2,
+      "filename": "init.cpp",
+      "line": 714,
+      "message": "An error occurred during extension manager startup: Cannot create extension socket: /var/osquery/osquery.em",
+      "version": "5.11.0"
+    }
+  ],
+  "log_type": "status",
+  "node_key": "this_is_a_node_secret"
+}

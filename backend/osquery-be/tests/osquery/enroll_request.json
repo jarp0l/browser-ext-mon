@@ -1,0 +1,59 @@
+{
+  "enroll_secret": "{\n  \"api_key\": \"API_KEY_FOR_ORG\",\n  \"owner_email\": \"EMAIL_OF_DEVICE_OWNER\"\n}",
+  "host_identifier": "462C6BD9-46C4-54DF-9220-6FFBA7C21AC6",
+  "platform_type": "21",
+  "host_details": {
+    "os_version": {
+      "arch": "x86_64",
+      "build": "21G217",
+      "major": "12",
+      "minor": "6",
+      "name": "macOS",
+      "patch": "1",
+      "platform": "darwin",
+      "platform_like": "darwin",
+      "version": "12.6.1"
+    },
+    "osquery_info": {
+      "build_distro": "10.14",
+      "build_platform": "darwin",
+      "config_hash": "",
+      "config_valid": "0",
+      "extensions": "inactive",
+      "instance_id": "4503c97c-00df-403c-ade0-6148d69f2662",
+      "pid": "13953",
+      "platform_mask": "21",
+      "start_time": "1709300725",
+      "uuid": "462C6BD9-46C4-54DF-9220-6FFBA7C21AC6",
+      "version": "5.11.0",
+      "watcher": "13952"
+    },
+    "platform_info": {
+      "address": "0xff990000",
+      "date": "09/06/2022 ",
+      "extra": "MBA71; 476.0.0.0.0; root@zpqmk; Tue Sep  6 17:43:39 PDT 2022; 476 (B&I); F000_B00; Official Build, Release; clang-1400.0.29.1",
+      "firmware_type": "uefi",
+      "revision": "476 (B&I)",
+      "size": "8388608",
+      "vendor": "Apple Inc. ",
+      "version": "476.0.0.0.0 ",
+      "volume_size": "1507328"
+    },
+    "system_info": {
+      "computer_name": "Linkus's MacBook Air",
+      "cpu_brand": "Intel(R) Core(TM) i5-5250U CPU @ 1.60GHz",
+      "cpu_logical_cores": "4",
+      "cpu_physical_cores": "2",
+      "cpu_subtype": "Intel x86-64h Haswell",
+      "cpu_type": "x86_64h",
+      "hardware_model": "MacBookAir7,2",
+      "hardware_serial": "FVFSTBYSH3QD",
+      "hardware_vendor": "Apple Inc.",
+      "hardware_version": "1.0",
+      "hostname": "linku-air",
+      "local_hostname": "Linku-MacBook-Air",
+      "physical_memory": "8589934592",
+      "uuid": "462C6BD9-46C4-54DF-9220-6FFBA7C21AC6"
+    }
+  }
+}

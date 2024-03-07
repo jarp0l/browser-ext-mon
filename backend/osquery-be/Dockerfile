@@ -49,6 +49,10 @@ RUN apt-get update \
     curl \
     # deps for building python deps
     build-essential \
+    # install infisical
+    && curl -1sLf \
+    'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
+    && apt-get install --no-install-recommends -y infisical \
     && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
@@ -77,6 +81,7 @@ WORKDIR $PYSETUP_PATH
 # copy in our built poetry + venv
 COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base /usr/bin/infisical /usr/bin/infisical
 
 # quicker install as runtime deps are already installed
 RUN --mount=type=cache,target=/root/.cache \
@@ -85,7 +90,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 EXPOSE 8008
-ENTRYPOINT ["uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
+CMD ["infisical", "run", "--env=dev", "--","uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--port=8008", "--log-level=debug"]
 
 
 ################################
@@ -95,7 +100,8 @@ ENTRYPOINT ["uvicorn", "osquery_be.main:app", "--reload", "--host=0.0.0.0", "--p
 FROM python-base as prod
 ENV APP_ENV=prod
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+COPY --from=builder-base /usr/bin/infisical /usr/bin/infisical
 COPY ./osquery_be /app/osquery_be
 WORKDIR /app
-EXPOSE 8501
-ENTRYPOINT ["uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]
+EXPOSE 8008
+CMD ["infisical", "run", "--env=prod", "--", "uvicorn", "osquery_be.main:app", "--host=0.0.0.0", "--port=8008"]

@@ -28,9 +28,28 @@ services:
       context: .
       dockerfile: Dockerfile # by default builds 'dev' image
     image: bem-osquery-be:latest
+    working_dir: /app
+    command:
+      [
+        "infisical",
+        "run",
+        "--",
+        "uvicorn",
+        "osquery_be.main:app",
+        "--reload",
+        "--host=0.0.0.0",
+        "--port=8008",
+        "--log-level=debug",
+      ]
+    volumes:
+      - $PWD:/app
     restart: on-failure
     networks:
       - bem-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # we need this to access host from container
+    environment:
+      - INFISICAL_TOKEN=${INFISICAL_TOKEN}
 
 networks:
   bem-net:
