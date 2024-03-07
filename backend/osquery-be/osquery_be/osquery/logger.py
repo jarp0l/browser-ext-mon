@@ -7,7 +7,11 @@ from osquery_be.osquery.exceptions import (
     NodeNotFoundException,
     NothingToDoException,
 )
-from osquery_be.schemas.common_schemas import LogType
+from osquery_be.schemas.common_schemas import (
+    LogType,
+    FirefoxAddonsColumns,
+    ChromeExtensionsColumns,
+)
 from osquery_be.schemas.logger_schemas import LoggerRequest, LoggerResponse
 from osquery_be.settings import settings
 
@@ -46,61 +50,73 @@ def store_logs(logger_req: LoggerRequest):
         node_id = search_nodes["items"][0]["id"]
         for log_data in logger_req.data:
             if log_data.name == "firefox_addons":  # name of the scheduled_query
+                # log_data.columns is a dict; needs to be converted to Pydantic model
+                # The models could have been used in common_schemas.py > LogTypeResult > columns, but
+                # only one of the queries would be recognized, while the other threw error.
+                log_data_columns = FirefoxAddonsColumns.model_validate(log_data.columns)
+
                 _ = client.post(
                     f"{settings.pb_api_url}/collections/firefox_extensions/records",
                     headers=headers,
                     json={
                         "node_id": node_id,
-                        "uid": int(log_data.columns.uid),
-                        "name": log_data.columns.name,
-                        "identifier": log_data.columns.identifier,
-                        "creator": log_data.columns.creator,
-                        "type": log_data.columns.type_,
-                        "version": log_data.columns.version,
-                        "description": log_data.columns.description,
-                        "source_url": log_data.columns.source_url,
-                        "visible": int(log_data.columns.visible),
-                        "active": int(log_data.columns.active),
-                        "disabled": int(log_data.columns.disabled),
-                        "autoupdate": int(log_data.columns.autoupdate),
-                        "location": log_data.columns.location,
-                        "path": log_data.columns.path,
+                        "uid": int(log_data_columns.uid),
+                        "name": log_data_columns.name,
+                        "identifier": log_data_columns.identifier,
+                        "creator": log_data_columns.creator,
+                        "type": log_data_columns.type_,
+                        "version": log_data_columns.version,
+                        "description": log_data_columns.description,
+                        "source_url": log_data_columns.source_url,
+                        "visible": int(log_data_columns.visible),
+                        "active": int(log_data_columns.active),
+                        "disabled": int(log_data_columns.disabled),
+                        "autoupdate": int(log_data_columns.autoupdate),
+                        "location": log_data_columns.location,
+                        "path": log_data_columns.path,
                     },
                 ).json()
 
             if log_data.name == "chrome_extensions":
+                # log_data.columns is a dict; needs to be converted to Pydantic model
+                # The models could have been used in common_schemas.py > LogTypeResult > columns, but
+                # only one of the queries would be recognized, while the other threw error.
+                log_data_columns = ChromeExtensionsColumns.model_validate(
+                    log_data.columns
+                )
+
                 _ = client.post(
                     f"{settings.pb_api_url}/collections/chrome_extensions/records",
                     headers=headers,
                     json={
                         "node_id": node_id,
-                        "browser_type": log_data.columns.browser_type,
-                        "uid": int(log_data.columns.uid),
-                        "name": log_data.columns.name,
-                        "profile": log_data.columns.profile,
-                        "profile_path": log_data.columns.profile_path,
-                        "referenced_identifier": log_data.columns.referenced_identifier,
-                        "identifier": log_data.columns.identifier,
-                        "version": log_data.columns.version,
-                        "description": log_data.columns.description,
-                        "default_locale": log_data.columns.default_locale,
-                        "current_locale": log_data.columns.current_locale,
-                        "update_url": log_data.columns.update_url,
-                        "author": log_data.columns.author,
-                        "persistent": int(log_data.columns.persistent),
-                        "path": log_data.columns.path,
-                        "permissions": log_data.columns.permissions,
-                        "permissions_json": log_data.columns.permissions_json,
-                        "optional_permissions": log_data.columns.optional_permissions,
-                        "optional_permissions_json": log_data.columns.optional_permissions_json,
-                        "manifest_hash": log_data.columns.manifest_hash,
-                        "referenced": int(log_data.columns.referenced),
-                        "from_webstore": log_data.columns.from_webstore,
-                        "state": log_data.columns.state,
-                        "install_time": log_data.columns.install_time,
-                        "install_timestamp": int(log_data.columns.install_timestamp),
-                        "manifest_json": log_data.columns.manifest_json,
-                        "key": log_data.columns.key,
+                        "browser_type": log_data_columns.browser_type,
+                        "uid": int(log_data_columns.uid),
+                        "name": log_data_columns.name,
+                        "profile": log_data_columns.profile,
+                        "profile_path": log_data_columns.profile_path,
+                        "referenced_identifier": log_data_columns.referenced_identifier,
+                        "identifier": log_data_columns.identifier,
+                        "version": log_data_columns.version,
+                        "description": log_data_columns.description,
+                        "default_locale": log_data_columns.default_locale,
+                        "current_locale": log_data_columns.current_locale,
+                        "update_url": log_data_columns.update_url,
+                        "author": log_data_columns.author,
+                        "persistent": int(log_data_columns.persistent),
+                        "path": log_data_columns.path,
+                        "permissions": log_data_columns.permissions,
+                        "permissions_json": log_data_columns.permissions_json,
+                        "optional_permissions": log_data_columns.optional_permissions,
+                        "optional_permissions_json": log_data_columns.optional_permissions_json,
+                        "manifest_hash": log_data_columns.manifest_hash,
+                        "referenced": int(log_data_columns.referenced),
+                        "from_webstore": log_data_columns.from_webstore,
+                        "state": log_data_columns.state,
+                        "install_time": log_data_columns.install_time,
+                        "install_timestamp": int(log_data_columns.install_timestamp),
+                        "manifest_json": log_data_columns.manifest_json,
+                        "key": log_data_columns.key,
                     },
                 ).json()
         return LoggerResponse(node_invalid=False)

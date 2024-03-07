@@ -90,5 +90,5 @@ class LogTypeResult(BaseModel):
     epoch: int
     counter: int
     numerics: bool
-    columns: FirefoxAddonsColumns | ChromeExtensionsColumns = {}
+    columns: dict[str, str] = {}
     action: str
