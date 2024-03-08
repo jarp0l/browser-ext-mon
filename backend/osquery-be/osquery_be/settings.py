@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     pb_api_url: str = Field("http://localhost:8090/api", alias="PB_API_DOCKER_URL")
     service_token: str = "osquery-be"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
 
 settings = Settings()
