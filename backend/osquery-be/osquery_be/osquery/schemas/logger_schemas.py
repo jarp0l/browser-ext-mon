@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from osquery_be.schemas.common_schemas import LogType, LogTypeResult, LogTypeStatus
-from osquery_be.schemas.config_schemas import ConfigRequest
+from osquery_be.osquery.schemas.common_schemas import LogType, LogTypeResult, LogTypeStatus
+from osquery_be.osquery.schemas.config_schemas import ConfigRequest
 
 
 class LoggerRequest(ConfigRequest):

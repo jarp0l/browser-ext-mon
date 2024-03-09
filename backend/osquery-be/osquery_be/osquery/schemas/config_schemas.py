@@ -1,7 +1,7 @@
 from typing import Annotated, Optional
 
 from pydantic import BaseModel
-from osquery_be.schemas.common_schemas import LogTypeStatus, LogType
+from osquery_be.osquery.schemas.common_schemas import LogTypeStatus, LogType
 
 
 class ConfigRequest(BaseModel):

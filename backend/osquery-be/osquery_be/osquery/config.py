@@ -3,7 +3,7 @@ import logging
 import httpx
 
 from osquery_be.settings import settings
-from osquery_be.schemas.config_schemas import (
+from osquery_be.osquery.schemas.config_schemas import (
     ConfigRequest,
     ConfigResponse,
     ConfigResponseSchedule,
