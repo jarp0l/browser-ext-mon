@@ -31,3 +31,10 @@ This should create a production bundle for your extension, ready to be zipped an
 ## Submit to the webstores
 
 The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+
+---
+
+## CREDITS
+
+- A lot of code used in this extension has been copied and/or modified from `little-rat` extension, and has been used according to the extension's MIT License. [Link.](https://github.com/dnakov/little-rat?tab=readme-ov-file)
+- Most of the icons are from Font Awesome Free 6, and the licensing information has been embedded with the respective SVG icons.
