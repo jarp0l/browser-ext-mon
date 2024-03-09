@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 
+from osquery_be.extension.analysis import get_analysis
+from osquery_be.extension.schemas import (
+    AnalysisRequest,
+    AnalysisResponse,
+)
 from osquery_be.osquery.config import get_config
 from osquery_be.osquery.enroll import enroll_node
 from osquery_be.osquery.logger import store_logs
@@ -36,3 +41,13 @@ async def post_config(config_req: ConfigRequest):
 async def logger(logger_req: LoggerRequest):
     res = store_logs(logger_req)
     return res
+
+
+@app.get("/extension/ping")
+async def extensions_ping():
+    return "OK"
+
+
+@app.post("/extension/analysis", response_model=AnalysisResponse)
+async def analysis(analysis_req: AnalysisRequest):
+    return get_analysis(analysis_req)
