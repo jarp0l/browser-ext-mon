@@ -6,16 +6,17 @@
   "author": "jarp0l",
   "scripts": {
     "dev:firefox": "plasmo dev --target=firefox-mv2",
+    "dev:brave": "plasmo dev --target=brave-mv3",
     "dev:chrome": "plasmo dev --target=chrome-mv3",
-    "dev": "pnpm run dev:firefox",
+    "dev": "pnpm run dev:brave",
     "build:firefox": "plasmo build --zip --target=firefox-mv2",
+    "build:brave": "plasmo build --zip --target=brave-mv2",
     "build:chrome": "plasmo build --zip --target=chrome-mv3",
-    "build": "pnpm run build:firefox & pnpm run build:chrome",
-    "package": "plasmo package"
+    "build": "pnpm run build:brave & pnpm run build:chrome"
   },
   "dependencies": {
     "bulma": "^0.9.4",
-    "plasmo": "0.84.2",
+    "plasmo": "0.85.0",
     "vue": "^3.4.21"
   },
   "devDependencies": {
@@ -35,10 +36,22 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "<all_urls>"
     ],
     "permissions": [
-      "tabs"
-    ]
+      "declarativeNetRequest",
+      "declarativeNetRequestFeedback",
+      "storage",
+      "management"
+    ],
+    "declarative_net_request": {
+      "rule_resources": [
+        {
+          "id": "ruleset_1",
+          "enabled": true,
+          "path": "~rules/rule1.json"
+        }
+      ]
+    }
   }
 }
