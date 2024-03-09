@@ -4,6 +4,8 @@
   "editor.guides.bracketPairs": "active",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  }
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
