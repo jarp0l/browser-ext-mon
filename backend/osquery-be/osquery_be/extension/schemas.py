@@ -33,15 +33,16 @@ class AnalysisRequest(BaseModel):
 
 
 class AnalysisVerdict(str, Enum):
-    GOOD = "good"
-    BAD = "bad"
+    SAFE = "safe"
+    DEFACEMENT = "defacement"
+    PHISHING = "phishing"
+    MALWARE = "malware"
 
 
 class AnalysisResponseData(BaseModel):
     request_id: str = Field(..., alias="requestId")
     extension_id: str = Field(..., alias="extensionId")
     verdict: AnalysisVerdict
-    reason: str = ""
 
 
 class AnalysisResponse(BaseModel):
@@ -54,16 +55,14 @@ class AnalysisResponse(BaseModel):
                     "data": {
                         "requestId": "1",
                         "extensionId": "fjlkfpfpajiaobkbonlafhkncagkdogj",
-                        "verdict": "good",
-                        "reason": "",
+                        "verdict": "safe",
                     }
                 },
                 {
                     "data": {
                         "requestId": "2",
                         "extensionId": "fjlkfpfpajiaobkbonlafhkncagkdogj",
-                        "verdict": "bad",
-                        "reason": "phishing",
+                        "verdict": "phishing",
                     }
                 },
             ]

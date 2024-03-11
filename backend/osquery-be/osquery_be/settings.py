@@ -14,8 +14,11 @@ class Settings(BaseSettings):
     # We need this to connect to backen/pb instance running on the host machine
     pb_api_url: str = Field("http://localhost:8090/api", alias="PB_API_DOCKER_URL")
     service_token: str = "osquery-be"
+    ml_models: dict = {}
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="allow"
+    )
 
 
 settings = Settings()
