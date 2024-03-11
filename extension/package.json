@@ -15,6 +15,7 @@
     "build": "pnpm run build:brave & pnpm run build:chrome"
   },
   "dependencies": {
+    "@plasmohq/messaging": "^0.6.2",
     "bulma": "^0.9.4",
     "plasmo": "0.85.0",
     "vue": "^3.4.21"
@@ -52,6 +53,7 @@
           "path": "~rules/rule1.json"
         }
       ]
-    }
+    },
+    "key": "$CRX_PUBLIC_KEY"
   }
 }
