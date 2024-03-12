@@ -32,6 +32,17 @@ enum AnalysisVerdict {
   BAD = "bad"
 }
 
+chrome.storage.local.get((s) => {
+  // muted = s?.muted || {}
+  blocked = s?.blocked || {}
+  extRuleIds = s?.extRuleIds || {}
+  recycleRuleIds = s?.recycleRuleIds || []
+  maxRuleId = s?.maxRuleId || 1
+  allRuleIds = s?.allRuleIds || [1]
+  blockedExtUrls = s?.blockedExtUrls || {}
+  requests = s?.requests || {}
+})
+
 /**
  * Get whether the browser is brave or another chrome browser
  *
@@ -123,6 +134,32 @@ async function setupListener() {
           numRequestsBlocked: 0
         }
       }
+
+      const req = requests[extensionId]
+      const url = [e.request.method, e.request.url].filter(Boolean).join(" ")
+      req.numRequestsAllowed = req.numRequestsAllowed || 0
+      req.numRequestsBlocked = req.numRequestsBlocked || 0
+
+      if (!req.reqUrls[url] || typeof req.reqUrls[url] !== "object") {
+        req.reqUrls[url] = {
+          blocked: 0,
+          allowed: typeof req.reqUrls[url] === "number" ? req.reqUrls[url] : 0
+        }
+      }
+
+      if (allRuleIds.includes(e.rule.ruleId)) {
+        req.numRequestsBlocked += 1
+        req.reqUrls[url].blocked += 1
+      } else {
+        req.numRequestsAllowed += 1
+        req.reqUrls[url].allowed += 1
+      }
+      const urlObj = new URL(e.request.url)
+      const blockedUrl = [urlObj.protocol, "//", urlObj.host, urlObj.pathname]
+        .filter(Boolean)
+        .join("")
+      req.reqUrls[url].isBlocked =
+        blockedExtUrls[extensionId]?.[blockedUrl] || false
     }
   })
 }
@@ -142,10 +179,10 @@ async function getExtensions() {
       numRequestsBlocked: 0,
       reqUrls: {},
       icon: icons?.[icons?.length - 1]?.url,
-      // blocked: blocked[id],
+      blocked: blocked[id],
       // muted: muted[id],
-      enabled
-      // ...(requests[id] || {})
+      enabled,
+      ...(requests[id] || {})
     }
   }
   return extensions

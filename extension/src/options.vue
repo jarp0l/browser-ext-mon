@@ -1,12 +1,8 @@
-<script setup lang="ts">
-import "~main.css"
-</script>
-
 <template>
   <section class="section">
     <div class="columns">
-      <div class="column is-one-third">
-        <article class="panel is-danger">
+      <div class="column is-one-quarter">
+        <aside class="panel is-danger">
           <p class="panel-heading has-text-centered">BEM Security</p>
           <div class="panel-block">
             <p class="control has-icons-left">
@@ -24,7 +20,7 @@ import "~main.css"
               </span>
             </p>
           </div>
-          <a class="panel-block is-active">
+          <a class="panel-block" href="#overview">
             <span class="panel-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                 <!-- !Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
@@ -35,7 +31,7 @@ import "~main.css"
             Overview
           </a>
 
-          <a class="panel-block">
+          <a class="panel-block is-active" href="#installed-extensions">
             <span class="panel-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                 <!-- !Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
@@ -46,7 +42,7 @@ import "~main.css"
             Installed Extensions
           </a>
 
-          <a class="panel-block">
+          <a class="panel-block" href="#network-traffic-log">
             <span class="panel-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                 <!-- !Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
@@ -56,16 +52,17 @@ import "~main.css"
             </span>
             Network Traffic Log
           </a>
-        </article>
+        </aside>
       </div>
-      <div class="column">
+
+      <div class="column" id="overview">
         <div class="card">
           <div class="card-content">
             <nav class="level">
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Total Extensions</p>
-                  <p class="title">3,456</p>
+                  <p class="title">{{ extensions.length }}</p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
@@ -77,19 +74,70 @@ import "~main.css"
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Allowed</p>
-                  <p class="title">456K</p>
+                  <p class="title">100</p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Blocked</p>
-                  <p class="title">789</p>
+                  <p class="title">23</p>
                 </div>
               </div>
             </nav>
           </div>
         </div>
+
+        <section class="section" id="installed-extensions">
+          <h1 class="title">Installed Extensions</h1>
+          <TheTable
+            :columns="['id', 'name', 'description']"
+            :rows="extensions" />
+        </section>
+
+        <section class="section" id="network-traffic-log">
+          <h1 class="title">Network Traffic Log</h1>
+          <TheTable
+            :columns="['id', 'name', 'requests']"
+            :rows="[
+              { id: 1, name: 'Adblock', requests: 123 },
+              { id: 2, name: 'Ghostery', requests: 456 },
+              { id: 3, name: 'Privacy Badger', requests: 789 }
+            ]" />
+        </section>
       </div>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import "~main.css"
+
+import { onMounted, ref } from "vue"
+
+import TheTable from "~components/TheTable.vue"
+
+const extensions = ref([])
+
+onMounted(async () => {
+  extensions.value = await getExtensions()
+})
+
+async function getExtensions() {
+  const extensions = []
+  const hasPerm = await chrome.permissions.contains({
+    permissions: ["management"]
+  })
+  if (!hasPerm) return []
+  const extInfo = await chrome.management.getAll()
+  for (let { id, name, description } of extInfo) {
+    const extension = {
+      id,
+      name,
+      description
+      // icon: icons?.[icons?.length - 1]?.url,
+    }
+    extensions.push(extension)
+  }
+  return extensions
+}
+</script>
