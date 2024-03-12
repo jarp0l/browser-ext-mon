@@ -1,0 +1,30 @@
+shape: sequence_diagram
+# bem-cli -> osquery-be: 
+bem-cli -> bem-cli: setup using apikey and device's owner email
+osqueryd
+bem-cli.t -> osquery-be.x: validate apikey
+
+bem-cli.t <- osquery-be.x: successfully validated
+bem-cli.t2 -> osqueryd: launch osqueryd
+
+osqueryd.t1 -> osquery-be.a: enroll the device
+osqueryd.t1 <- osquery-be.a: return node_key on success
+osqueryd.t1 -> osquery-be.a: get config
+osqueryd.t1 <- osquery-be.a: return queries to run
+osqueryd.t1 -> osquery-be.a: send result of queries
+
+osquery-be.t2 -> pocketbase-be: sends node information using apikey
+osquery-be.t2 <- pocketbase-be: sends org_id to osquery-be
+osquery-be.t2 -> pocketbase-be: sends firefox and chrome extensions details using node_id
+
+pocketbase-be
+# osquery-be.t2 -> pocketbase-node: insert nodes information
+# osquery-be.t2 -> pocketbase-firefox: insert firefox extension from device
+# osquery-be.t2 -> pocketbase-chrome: insert chrome information from device
+streamlit-app.t1 -> pocketbase-be.t1: authenticates
+streamlit-app.t1 <- pocketbase-be.t1: successful
+pocketbase-be.t1 <- streamlit-app.t1: accesses user data
+sqlite
+pocketbase-be -> sqlite: stores data
+streamlit-app -> redis(cache): caches data
+redis(cache)
