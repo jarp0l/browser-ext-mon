@@ -7,12 +7,12 @@ from osquery_be.osquery.exceptions import (
     NodeNotFoundException,
     NothingToDoException,
 )
-from osquery_be.schemas.common_schemas import (
+from osquery_be.osquery.schemas.common_schemas import (
     LogType,
     FirefoxAddonsColumns,
     ChromeExtensionsColumns,
 )
-from osquery_be.schemas.logger_schemas import LoggerRequest, LoggerResponse
+from osquery_be.osquery.schemas.logger_schemas import LoggerRequest, LoggerResponse
 from osquery_be.settings import settings
 
 

@@ -12,6 +12,9 @@ uvicorn = {version = "~0.27.1", extras = ["standard"]}
 httpx = "^0.27.0"
 pydantic = {extras = ["email"], version = "^2.6.3"}
 pydantic-settings = "^2.2.1"
+joblib = "^1.3.2"
+xgboost = "^2.0.3"
+tld = "^0.13"
 
 
 [tool.poetry.group.dev.dependencies]

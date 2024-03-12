@@ -1,4 +1,9 @@
+# no TLS on this host:port, for this path
+http://localhost:1337 {
+	reverse_proxy /extension/* osquery_be:8008
+}
+
 localhost:443 {
-	reverse_proxy osquery_be:8008
+	reverse_proxy /* osquery_be:8008
 	tls internal
 }

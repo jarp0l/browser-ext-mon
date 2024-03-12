@@ -1,13 +1,36 @@
+import logging
+import time
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from osquery_be.osquery.config import get_config
-from osquery_be.osquery.enroll import enroll_node
-from osquery_be.osquery.logger import store_logs
-from osquery_be.schemas.config_schemas import ConfigRequest, ConfigResponse
-from osquery_be.schemas.enroll_schemas import EnrollRequest, EnrollResponse
-from osquery_be.schemas.logger_schemas import LoggerRequest, LoggerResponse
+from osquery_be.extension.api import router as extension_router
+from osquery_be.extension.model_loader import ModelLoader
+from osquery_be.osquery.api import router as osquery_router
+from osquery_be.settings import settings
 
-app = FastAPI()
+logging.basicConfig(level=logging.INFO)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
+    logging.info("")
+    logging.info(">>> Loading models...")
+    start_time = time.time()
+    model_loader = ModelLoader()
+    settings.ml_models["url_analysis"] = model_loader.load_model("url_analysis")
+    end_time = time.time()
+    execution_time = end_time - start_time
+    logging.info(
+        f">>> Finished loading ML models. Took {execution_time * 1000} milliseconds.\n"
+    )
+    yield
+    # Clean up the ML models and release the resources
+    settings.ml_models.clear()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
@@ -20,19 +43,5 @@ async def get_health():
     return "OK"
 
 
-@app.post("/osquery/enroll", response_model=EnrollResponse)
-async def enroll(enroll_req: EnrollRequest):
-    res = enroll_node(enroll_req)
-    return res
-
-
-@app.post("/osquery/config", response_model=ConfigResponse)
-async def post_config(config_req: ConfigRequest):
-    res = get_config(config_req)
-    return res
-
-
-@app.post("/osquery/logger", response_model=LoggerResponse)
-async def logger(logger_req: LoggerRequest):
-    res = store_logs(logger_req)
-    return res
+app.include_router(osquery_router)
+app.include_router(extension_router)

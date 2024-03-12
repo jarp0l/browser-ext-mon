@@ -3,7 +3,7 @@ import logging
 
 import httpx
 from osquery_be.settings import settings
-from osquery_be.schemas.enroll_schemas import (
+from osquery_be.osquery.schemas.enroll_schemas import (
     EnrollRequest,
     EnrollResponse,
     EnrollSecret,
