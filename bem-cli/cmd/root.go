@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	Use:   "bem-cli",
 	Short: "CLI tool for browser-ext-mon project",
 	Long: `This tool is used to send information about installed extensions from
-endpoints to browser-ext-mon server.`,
+nodes to backend server.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if debug {
 			log.SetLevel(log.DebugLevel)
