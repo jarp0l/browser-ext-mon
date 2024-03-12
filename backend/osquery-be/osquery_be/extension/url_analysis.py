@@ -33,12 +33,6 @@ def count_dots(url):
     return count_dot
 
 
-# count the number of 'www' in the URL
-def count_www(url):
-    count_www = url.count("www")
-    return count_www
-
-
 # count the number of '@' in the URL
 def count_atrate(url):
     count_atrate = url.count("@")
@@ -150,7 +144,6 @@ def preprocessed_data(url):
             have_IP(url),
             abnormal_url(url),
             count_dots(url),
-            count_www(url),
             count_atrate(url),
             count_directory(url),
             no_of_embed(url),
