@@ -1,0 +1,63 @@
+{
+  "name": "bem-extension",
+  "displayName": "BEM extension",
+  "version": "0.0.1",
+  "description": "Extension for BEM project",
+  "author": "jarp0l",
+  "scripts": {
+    "dev:firefox": "plasmo dev --target=firefox-mv2",
+    "dev:brave": "plasmo dev --target=brave-mv3",
+    "dev:chrome": "plasmo dev --target=chrome-mv3",
+    "dev": "pnpm run /^watch:.*/",
+    "watch:css": "pnpm run build:css --watch",
+    "watch:plasmo": "pnpm run dev:brave",
+    "build:css": "sass --no-source-map --style compressed src/sass/main.scss src/main.css",
+    "build:firefox": "plasmo build --zip --target=firefox-mv2",
+    "build:brave": "plasmo build --zip --target=brave-mv2",
+    "build:chrome": "plasmo build --zip --target=chrome-mv3",
+    "build": "pnpm run build:css && (pnpm run build:brave & pnpm run build:chrome)"
+  },
+  "dependencies": {
+    "@plasmohq/messaging": "^0.6.2",
+    "@plasmohq/storage": "^1.9.3",
+    "bulma": "^0.9.4",
+    "plasmo": "0.85.0",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@types/chrome": "0.0.258",
+    "@types/node": "20.11.5",
+    "prettier": "3.2.4",
+    "sass": "^1.71.1",
+    "typescript": "5.3.3"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "svgo": "2.8.0"
+      }
+    }
+  },
+  "manifest": {
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "permissions": [
+      "declarativeNetRequest",
+      "declarativeNetRequestFeedback",
+      "storage",
+      "management"
+    ],
+    "declarative_net_request": {
+      "rule_resources": [
+        {
+          "id": "ruleset_1",
+          "enabled": true,
+          "path": "~rules/rule1.json"
+        }
+      ]
+    },
+    "key": "$CRX_PUBLIC_KEY"
+  }
+}
