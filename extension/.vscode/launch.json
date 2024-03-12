@@ -15,7 +15,13 @@
       "reloadOnChange": {
         "watch": ["${workspaceFolder}/build/firefox-mv2-dev/**"]
       },
-      "addonPath": "${workspaceFolder}/build/firefox-mv2-dev"
+      "addonPath": "${workspaceFolder}/build/firefox-mv2-dev",
+      "pathMappings": [
+        {
+          "url": "moz-extension://10a55ff3-da69-4bb5-a3ab-d1efec9c239c/static/background/src",
+          "path": "${workspaceFolder}/src"
+        }
+      ]
     }
   ]
 }
