@@ -2,4 +2,7 @@
 gatherUsageStats = false
 
 [theme]
-base = "light"
+primaryColor="#2962ff"
+backgroundColor="#131722"
+secondaryBackgroundColor="#0c0e15"
+textColor="#f6f6f6"

@@ -96,6 +96,11 @@ class LoginForm(AuthForm):
         del st.session_state["bem-token"]
         st.rerun()
 
+    def get_auth_item(self, auth_item):
+        if auth_item not in st.session_state:
+            return None
+        return st.session_state[auth_item]
+
 
 class SignupForm(AuthForm):
     def __init__(self):
@@ -129,7 +134,7 @@ class SignupForm(AuthForm):
                     "email": self.email,
                     "password": self.password,
                     "passwordConfirm": self.password_confirm,
-                    "org_name": self.org_name
+                    "org_name": self.org_name,
                 },
             )
             if res1 != {}:
