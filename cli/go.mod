@@ -1,8 +1,9 @@
-module github.com/jarp0l/browser-ext-mon/bem-cli
+module github.com/jarp0l/browser-ext-mon/cli
 
 go 1.21.5
 
 require (
+	github.com/charmbracelet/log v0.4.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 )
@@ -11,8 +12,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.9 // indirect
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/lipgloss v0.9.1 // indirect
-	github.com/charmbracelet/log v0.3.1 // indirect
+	github.com/charmbracelet/lipgloss v0.10.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
@@ -29,7 +29,7 @@ require (
 	github.com/osquery/osquery-go v0.0.0-20231130195733-61ac79279aaa // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
