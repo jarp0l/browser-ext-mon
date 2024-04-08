@@ -37,9 +37,9 @@ class AuthForm:
     def handle_form_submit(self):
         raise NotImplementedError("Subclasses must implement this method")
 
-    def make_request(self, method, endpoint, data):
+    def make_post_request(self, endpoint, data):
         try:
-            res = httpx.request(method, f"{API_BASE_URL}{endpoint}", json=data)
+            res = httpx.request("post", f"{API_BASE_URL}{endpoint}", json=data)
             if res.status_code == 200:
                 return res.json()
             elif res.status_code in [400, 403]:
@@ -63,13 +63,12 @@ class LoginForm(AuthForm):
 
     def handle_form_submit(self):
         with st.spinner("Logging in..."):
-            res = self.make_request(
-                "post",
+            res = self.make_post_request(
                 "/collections/users/auth-with-password",
                 {"identity": self.email, "password": self.password},
             )
             if res != {}:
-                self.set_logged_in(res["token"])
+                self.set_logged_in(res["token"], res["record"]["email"])
                 st.success("Login Successful! 😃")
                 time.sleep(0.5)
                 st.rerun()
@@ -87,13 +86,17 @@ class LoginForm(AuthForm):
             st.session_state["bem-token"] = r_bem_token
             return True
 
-    def set_logged_in(self, token: str):
+    def set_logged_in(self, token: str, email: str):
         st.session_state["bem-token"] = token
+        st.session_state["bem-email"] = email
         r.set("bem-token", token, ex=AUTH_TOKEN_EXPIRY)
+        r.set("bem-email", email, ex=AUTH_TOKEN_EXPIRY)
 
     def logout(self):
         r.delete("bem-token")
+        r.delete("bem-email")
         del st.session_state["bem-token"]
+        del st.session_state["bem-email"]
         st.rerun()
 
     def get_auth_item(self, auth_item):
@@ -127,8 +130,7 @@ class SignupForm(AuthForm):
 
     def handle_form_submit(self):
         with st.spinner("Signing up..."):
-            res1 = self.make_request(
-                "post",
+            res1 = self.make_post_request(
                 "/collections/users/records",
                 {
                     "email": self.email,
