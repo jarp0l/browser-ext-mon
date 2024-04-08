@@ -8,7 +8,7 @@
 ################################
 FROM python:3.11-slim as python-base
 
-    # python
+# python
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
     PYTHONDONTWRITEBYTECODE=1 \
@@ -31,7 +31,10 @@ ENV PYTHONUNBUFFERED=1 \
     # paths
     # this is where our requirements + virtual environment will live
     PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    VENV_PATH="/opt/pysetup/.venv" \
+    \
+    # prevents module not found error
+    PYTHONPATH="/app"
 
 
 # prepend poetry and venv to path
@@ -45,10 +48,10 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 FROM python-base as builder-base
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        # deps for installing poetry
-        curl \
-        # deps for building python deps
-        build-essential \
+    # deps for installing poetry
+    curl \
+    # deps for building python deps
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
@@ -85,7 +88,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 EXPOSE 8501
-ENTRYPOINT ["streamlit", "run", "streamlit_app/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0", "--browser.gatherUsageStats=false"]
+CMD ["streamlit", "run", "streamlit_app/dashboard.py"]
 
 
 ################################
@@ -98,4 +101,4 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./streamlit_app /app/streamlit_app
 WORKDIR /app
 EXPOSE 8501
-ENTRYPOINT ["streamlit", "run", "streamlit_app/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0", "--browser.gatherUsageStats=false"]
+CMD ["streamlit", "run", "streamlit_app/dashboard.py"]

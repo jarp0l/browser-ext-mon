@@ -1,2 +1,5 @@
-*.md
-tests/
+**
+!pyproject.toml
+!poetry.lock
+!streamlit_app
+!.streamlit
