@@ -5,7 +5,7 @@ import time
 import httpx
 import streamlit as st
 
-from streamlit_app.utils.init_redis import r
+from streamlit_app.utils.init_dragonfly import dragonfly
 
 API_BASE_URL = os.getenv("PB_API_URL", "http://localhost:8090/api")
 AUTH_TOKEN_EXPIRY = os.getenv("ST_AUTH_TOKEN_EXPIRY", 86400)
@@ -39,7 +39,7 @@ class AuthForm:
 
     def make_post_request(self, endpoint, data):
         try:
-            res = httpx.request("post", f"{API_BASE_URL}{endpoint}", json=data)
+            res = httpx.post(f"{API_BASE_URL}{endpoint}", json=data)
             if res.status_code == 200:
                 return res.json()
             elif res.status_code in [400, 403]:
@@ -79,7 +79,7 @@ class LoginForm(AuthForm):
         if "bem-token" in st.session_state:
             return True
 
-        r_bem_token = r.get("bem-token")
+        r_bem_token = dragonfly.get("bem-token")
         if r_bem_token is None:
             return False
         else:
@@ -89,14 +89,17 @@ class LoginForm(AuthForm):
     def set_logged_in(self, token: str, email: str):
         st.session_state["bem-token"] = token
         st.session_state["bem-email"] = email
-        r.set("bem-token", token, ex=AUTH_TOKEN_EXPIRY)
-        r.set("bem-email", email, ex=AUTH_TOKEN_EXPIRY)
+        dragonfly.set("bem-token", token, ex=AUTH_TOKEN_EXPIRY)
+        dragonfly.set("bem-email", email, ex=AUTH_TOKEN_EXPIRY)
 
     def logout(self):
-        r.delete("bem-token")
-        r.delete("bem-email")
-        del st.session_state["bem-token"]
-        del st.session_state["bem-email"]
+        dragonfly.delete("bem-token")
+        dragonfly.delete("bem-email")
+        try:
+            del st.session_state["bem-token"]
+            del st.session_state["bem-email"]
+        except KeyError:
+            pass
         st.rerun()
 
     def get_auth_item(self, auth_item):
