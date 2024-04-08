@@ -1,6 +1,6 @@
 import logging
 import os
-import streamlit as st
+
 import httpx
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8090/api")
@@ -11,6 +11,7 @@ def make_get_request(collection, filter):
         res = httpx.get(
             f"{API_BASE_URL}/collections/{collection}/records",
             params={"filter": filter},
+            headers={"X-SERVICE-TOKEN": "streamlit-app"},
         )
         if res.status_code == 200:
             return res.json()
@@ -22,12 +23,19 @@ def make_get_request(collection, filter):
         return None
 
 
+def get_organization(admin_email):
+    org_data = make_get_request(
+        collection="organizations", filter=f"(admin_email='{admin_email}')"
+    )
+    if org_data is None:
+        return None
+    return org_data
+
+
 def get_nodes(org_id):
-    if "nodes" in st.session_state:
-        return st.session_state["nodes"]
     nodes = make_get_request("nodes", filter=f"(org_id='{org_id}')")
-    if nodes is not None:
-        st.session_state["nodes"] = nodes
+    if nodes is None:
+        return None
     return nodes
 
 
