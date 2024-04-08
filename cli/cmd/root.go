@@ -16,6 +16,7 @@ import (
 
 var cfgFile string
 var debug bool
+
 var overwriteFile string = "n"
 
 // rootCmd represents the base command when called without any subcommands
@@ -80,15 +81,17 @@ func initConfig() {
 		if err := viper.WriteConfigAs(viper.ConfigFileUsed()); err != nil {
 			log.Error(err)
 		}
-	} else {
+	}
+
+	// Consider this method for future refactoring: https://github.com/spf13/viper/issues/1#issuecomment-451533395
+	if _, err := os.Stat(viper.ConfigFileUsed()); err == nil {
 		fmt.Print("Config file already exists. Do you want to overwrite it? (y/N): ")
 		fmt.Scanf("%s", &overwriteFile)
-
 
 		if strings.ToLower(overwriteFile) != "y" {
 			log.Info("Not overwriting config file. Exiting...")
 			os.Exit(1)
 		}
 	}
-	log.Infof("Using config file: %s", viper.ConfigFileUsed())
+	log.Debugf("Using config file: %s", viper.ConfigFileUsed())
 }
