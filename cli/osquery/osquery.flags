@@ -1,0 +1,12 @@
+--host_identifier=uuid \
+--pidfile=$(echo $$) \
+--tls_hostname=localhost \
+--config_plugin=tls \
+--logger_plugin=tls \
+--enroll_secret_path=$HOME/bem.json \
+--enroll_tls_endpoint=/osquery/enroll \
+--logger_tls_endpoint=/osquery/logger \
+--config_tls_endpoint=/osquery/config \
+--tls_server_certs=osquery/root.crt \
+--ephemeral \
+--disable_database

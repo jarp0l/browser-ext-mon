@@ -22,3 +22,7 @@ go.work
 
 # Custom ignore list
 junk/
+
+# CLI binary(ies)
+bem-cli
+cli
