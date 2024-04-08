@@ -3,7 +3,7 @@ import os
 
 import httpx
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8090/api")
+API_BASE_URL = os.getenv("PB_API_URL", "http://localhost:8090/api")
 
 
 def make_get_request(collection, filter):
