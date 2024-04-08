@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     # host.docker.internal is a special DNS name which resolves to the internal IP address used by the host
     # We need this to connect to backen/pb instance running on the host machine
-    pb_api_url: str = Field("http://localhost:8090/api", alias="PB_API_DOCKER_URL")
+    pb_api_url: str = Field("http://host.docker.internal:8090/api", alias="PB_API_DOCKER_URL")
     service_token: str = "osquery-be"
     ml_models: dict = {}
 
