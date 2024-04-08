@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/mail"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
@@ -37,18 +38,27 @@ func setup() {
 
 		if apiKey == "" {
 			log.Error("API key field cannot be empty.")
-			continue
 		} else {
 			break
 		}
 	}
 
 	// Owner email (or the email of the owner of the device)
-	// Optional
-	fmt.Print("Enter owner email: ")
-	fmt.Scanf("%s", &ownerEmail)
-	if ownerEmail == "" {
-		log.Warn("Owner email not set.")
+	for {
+		fmt.Print("Enter owner email: ")
+		fmt.Scanf("%s", &ownerEmail)
+
+		// Email is optional
+		if ownerEmail == "" {
+			log.Warn("Owner email not set.")
+			break
+		}
+
+		if !isEmailValid(ownerEmail) {
+			log.Error("Invalid email address.")
+		} else {
+			break
+		}
 	}
 
 	viper.GetViper().Set("api_key", apiKey)
@@ -61,4 +71,9 @@ func setup() {
 	log.Debugf("API key: %s", viper.GetViper().GetString("api_key"))
 	log.Debugf("Owner email: %s", viper.GetViper().GetString("owner_email"))
 	log.Info("API key and owner email set successfully.")
+}
+
+func isEmailValid(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }
