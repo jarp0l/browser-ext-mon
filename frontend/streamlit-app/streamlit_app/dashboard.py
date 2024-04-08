@@ -1,87 +1,51 @@
 import streamlit as st
-import pandas as pd
 
-from streamlit_app.utils.apis import get_nodes, make_get_request,get_extensions
+from streamlit_app.utils.apis import get_extensions, get_nodes, get_organization
 from streamlit_app.utils.auth_form import LoginForm, auth_form
-
-NUMBER_OF_NODES = None
-
-
-def populate_node_page():
-    org_id = "72b53p7ai8s9wdm"
-    data_node = make_get_request(collection="nodes", filter=f"(org_id='{org_id}')")
-    if data_node is None:
-        st.error("error fetching nodes records")
-        return
-    return data_node
 
 
 def populate_page():
-    # hardcoded values for testing
-    admin_email = "admin@admin.com"
-
-    ## TO LIST THE ORGANIZATION DATA
-    data_org = make_get_request(
-        collection="organizations", filter=f"(admin_email='{admin_email}')"
-    )
-
-    if data_org is None:
-        st.error("error fetching records ")
+    if "bem-email" not in st.session_state:
         return
-    item_org = data_org["items"]
-    api_keys = [org["api_key"] for org in item_org]
+    admin_email = st.session_state["bem-email"]
 
-    ##  TO LIST THE NODES DATA
-    org_id = "72b53p7ai8s9wdm"
-    data_node = make_get_request(collection="nodes", filter=f"(org_id='{org_id}')")
-    data_node = populate_node_page()
-    NUMBER_OF_NODES = data_node["totalItems"]
+    org = get_organization(admin_email)
+    api_key = org["items"][0].get("api_key")
+    org_id = org["items"][0].get("id")
+    if api_key is None:
+        st.error("Error fetching organization info!")
+        return
 
-   
-    
-    
-    org_id = "72b53p7ai8s9wdm"
-    data_node = get_nodes(org_id)
+    nodes = get_nodes(org_id)
+    if nodes is None:
+        st.error("Error fetching nodes!")
+        return
 
-    item_node = data_node["items"]
-    
-   
-   # top 5 most used extensions but using another api call 
+    total_extensions = 0
+    for node in nodes["items"]:
+        firefox_extensions = get_extensions("firefox_extensions", node.get("id"))
+        chrome_extensions = get_extensions("chrome_extensions", node.get("id"))
+        if firefox_extensions is None:
+            st.error("Error fetching firefox extensions!")
+            return
+        if chrome_extensions is None:
+            st.error("Error fetching chrome extensions!")
+            return
+        total_extensions += firefox_extensions["totalItems"]
+        total_extensions += chrome_extensions["totalItems"]
 
-    # for item in item_node:
-    #     extension_firefox_node = get_extensions("firefox_extensions", item.get("id"))
-    #     if extension_firefox_node is None:
-    #         st.error("error fetching extension records")
-    #         return
-    #     if extension_firefox_node["totalItems"]:
-    #         df = pd.DataFrame(extension_firefox_node["items"])
-           
-    #     else:
-    #         st.error("total items in node is zero")
+    with st.container(border=True):
+        st.subheader("Statistics")
+        col1, col2 = st.columns(2)
+        col1.metric("**Nodes (Users)**", nodes["totalItems"])
+        col2.metric("**Extensions**", total_extensions)
 
-    
-
-  
-   
-    # all_extensions = df["identifier"].value_counts().reset_index()
-    # all_extensions.columns = ["identifier", "count"]
-    # top_5_extensions = all_extensions.head(5)
-    # st.subheader("Top 5 Most Used Extensions")
-    # st.bar_chart(top_5_extensions.set_index("identifier"))
-    
-    col1, col2 = st.columns(2)
-
-    with col1:
-         # Use the new class
-        st.write(f"Number of Nodes")
-        st.write(f"{NUMBER_OF_NODES}")   
-
-    with col2:
-        # Use the new class
-        st.write(f"API Key")
-        st.write(f"{api_keys}")
-
-    ## TO LIST THE EXTENSIONS DATA AND TOTAL ITEMS
+    with st.container(border=True):
+        st.subheader("API Key")
+        st.write("You need this for CLI")
+        show = st.toggle("Show/hide API Key")
+        if show:
+            st.info(api_key)
 
 
 def build_page():
