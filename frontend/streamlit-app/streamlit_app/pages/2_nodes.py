@@ -1,32 +1,51 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
+from streamlit_app.utils.apis import get_nodes, get_organization
 from streamlit_app.utils.auth_form import LoginForm, auth_form
-# from streamlit_app.utils.apis import make_get_request
-# from streamlit_app.dashboard import populate_node_page
-from streamlit_app.utils.apis import get_nodes
 
 
 def populate_page():
-    
-    org_id_here="72b53p7ai8s9wdm"
-    
-    nodes = get_nodes(org_id_here)
+    if "bem-email" not in st.session_state:
+        return
+    admin_email = st.session_state["bem-email"]
+
+    org_data = get_organization(admin_email)
+    org_id = org_data["items"][0].get("id")
+    if org_id is None:
+        st.error("Error fetching organization info!")
+        return
+
+    nodes = get_nodes(org_id)
     if nodes is None:
         st.error("Error fetching nodes!")
         return
-    if  nodes['totalItems']:
-        df = pd.DataFrame(nodes["items"])
-        st.data_editor(df)
-    else:
-        st.error("total items in node is zero")
-    
+    if not nodes["totalItems"]:
+        st.error("There are no nodes. Run the CLI to add nodes.")
+        return
+
+    df = pd.DataFrame(nodes["items"])
+    st.data_editor(
+        df,
+        column_order=(
+            "uuid",
+            "owner_email",
+            "created",
+            "updated",
+        ),
+        column_config={
+            "created": "Created",
+            "updated": "Updated",
+            "owner_email": "Owner Email",
+            "uuid": "UUID",
+        },
+    )
 
 
 def build_page():
-    st.set_page_config(page_title="Nodes")
+    st.set_page_config(page_title="Nodes", layout="wide")
     st.header("Nodes")
-    st.subheader("List of nodes")
+    st.subheader("Showing all nodes")
     if st.sidebar.button("Logout"):
         LoginForm().logout()
     populate_page()
