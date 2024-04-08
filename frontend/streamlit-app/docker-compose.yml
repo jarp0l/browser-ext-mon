@@ -1,8 +1,38 @@
-version: '3'
+version: "3"
 
 services:
+  st-app:
+    container_name: bem-st
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bem-st:latest
+    restart: on-failure
+    ports:
+      - "8501:8501"
+    environment:
+      - DRAGONFLY_HOST=dragonfly
+      - DRAGONFLY_PORT=6379
+      - PB_API_URL=http://host.docker.internal:8090/api
+    working_dir: /app
+    command:
+      [
+        "streamlit",
+        "run",
+        "streamlit_app/dashboard.py",
+        "--server.address=0.0.0.0",
+      ]
+    volumes:
+      - $PWD:/app
+    networks:
+      - bem-net
+    depends_on:
+      - dragonfly
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   dragonfly:
-    image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
+    image: "docker.dragonflydb.io/dragonflydb/dragonfly"
     restart: unless-stopped
     # ulimits:
     #   memlock: -1

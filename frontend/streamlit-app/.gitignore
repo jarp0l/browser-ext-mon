@@ -161,3 +161,6 @@ cython_debug/
 
 # Docker slim
 slim.report.json
+
+# macOS
+.DS_Store
