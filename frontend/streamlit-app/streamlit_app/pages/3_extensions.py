@@ -36,9 +36,23 @@ def populate_page():
         all_chrome_extensions.extend(chrome_extensions["items"])
 
         firefox_df = pd.DataFrame(all_firefox_extensions)
-        chrome_df = pd.DataFrame(all_chrome_extensions)
+        chrome_df = pd.DataFrame(
+            [
+                extension
+                for extension in all_chrome_extensions
+                if extension.get("browser_type") == "chrome"
+            ]
+        )
+        brave_df = pd.DataFrame(
+            [
+                extension
+                for extension in all_chrome_extensions
+                if extension.get("browser_type") == "brave"
+            ]
+        )
 
-    with st.container(border=True):
+    tabs = st.tabs(["Firefox", "Chrome", "Brave"])
+    with tabs[0]:
         st.subheader("Firefox Extensions")
         st.data_editor(
             firefox_df,
@@ -67,17 +81,15 @@ def populate_page():
             },
         )
 
-    with st.container(border=True):
-        st.subheader("Chrome Extensions")
-        st.data_editor(
-            chrome_df,
+    def get_data_editor_for_browser(browser_df):
+        return st.data_editor(
+            browser_df,
             column_order=(
                 "name",
                 "version",
                 "identifier",
                 "description",
                 "author",
-                "browser_type",
                 "node_id",
                 "permissions",
                 "optional_permissions",
@@ -91,7 +103,6 @@ def populate_page():
                 "identifier": "Identifier",
                 "description": "Description",
                 "author": "Author",
-                "browser_type": "Browser Type",
                 "node_id": "Node ID",
                 "permissions": "Permissions",
                 "optional_permissions": "Optional Permissions",
@@ -102,6 +113,14 @@ def populate_page():
                 ),
             },
         )
+
+    with tabs[1]:
+        st.subheader("Chrome Extensions")
+        get_data_editor_for_browser(chrome_df)
+
+    with tabs[2]:
+        st.subheader("Brave Extensions")
+        get_data_editor_for_browser(brave_df)
 
 
 def build_page():
