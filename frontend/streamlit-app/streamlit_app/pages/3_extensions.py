@@ -74,7 +74,7 @@ def populate_page():
             column_order=(
                 "name",
                 "version",
-                "referenced_identifier",
+                "identifier",
                 "description",
                 "author",
                 "browser_type",
@@ -88,7 +88,7 @@ def populate_page():
             column_config={
                 "name": "Name",
                 "version": "Version",
-                "referenced_identifier": "Identifier",
+                "identifier": "Identifier",
                 "description": "Description",
                 "author": "Author",
                 "browser_type": "Browser Type",

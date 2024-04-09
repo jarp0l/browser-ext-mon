@@ -30,7 +30,7 @@ func init() {
 }
 
 func setup() {
-	log.Info("Seting up bem-cli tool for first time use.")
+	fmt.Println("Seting up bem-cli tool for first time use.")
 
 	for {
 		fmt.Print("Enter API key: ")
@@ -70,7 +70,7 @@ func setup() {
 
 	log.Debugf("API key: %s", viper.GetViper().GetString("api_key"))
 	log.Debugf("Owner email: %s", viper.GetViper().GetString("owner_email"))
-	log.Info("API key and owner email set successfully.")
+	fmt.Println("API key and owner email set successfully.")
 }
 
 func isEmailValid(email string) bool {
