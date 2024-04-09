@@ -78,12 +78,13 @@ class LoginForm(AuthForm):
     def is_logged_in(self):
         if "bem-token" in st.session_state:
             return True
-
         r_bem_token = dragonfly.get("bem-token")
-        if r_bem_token is None:
+        r_bem_email = dragonfly.get("bem-email")
+        if r_bem_token is None or r_bem_email is None:
             return False
         else:
             st.session_state["bem-token"] = r_bem_token
+            st.session_state["bem-email"] = r_bem_email
             return True
 
     def set_logged_in(self, token: str, email: str):
