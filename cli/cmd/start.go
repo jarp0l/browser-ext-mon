@@ -4,6 +4,7 @@ Copyright © 2024 Prajwol Pradhan <57973356+jarp0l@users.noreply.github.com>
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -84,6 +85,7 @@ func startMonitoring() {
 	// https://blog.kowalczyk.info/article/wOYk/advanced-command-execution-in-go-with-osexec.html
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	fmt.Println("Monitoring started...")
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err.Error())
