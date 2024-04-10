@@ -20,6 +20,8 @@
   "dependencies": {
     "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.9.3",
+    "ag-grid-community": "^31.2.1",
+    "ag-grid-vue3": "^31.2.1",
     "bulma": "^0.9.4",
     "plasmo": "0.85.0",
     "vue": "^3.4.21"

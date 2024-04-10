@@ -1,7 +1,7 @@
 <template>
   <section class="section">
     <div class="columns">
-      <div class="column is-one-quarter">
+      <div class="column is-one-quarter" id="sidebar">
         <aside class="panel is-danger">
           <p class="panel-heading has-text-centered">BEM Security</p>
           <div class="panel-block">
@@ -56,7 +56,7 @@
       </div>
 
       <div class="column" id="overview">
-        <div class="card">
+        <div class="card" id="statistics">
           <div class="card-content">
             <nav class="level">
               <div class="level-item has-text-centered">
@@ -89,20 +89,24 @@
 
         <section class="section" id="installed-extensions">
           <h1 class="title">Installed Extensions</h1>
-          <TheTable
-            :columns="['id', 'name', 'description']"
-            :rows="extensions" />
+          <ag-grid-vue
+            :rowData="extensions"
+            :columnDefs="extensionColDefs"
+            :gridOptions="gridOptions"
+            style="height: 500px"
+            class="ag-theme-quartz">
+          </ag-grid-vue>
         </section>
 
         <section class="section" id="network-traffic-log">
           <h1 class="title">Network Traffic Log</h1>
-          <TheTable
-            :columns="['id', 'name', 'requests']"
-            :rows="[
-              { id: 1, name: 'Adblock', requests: 123 },
-              { id: 2, name: 'Ghostery', requests: 456 },
-              { id: 3, name: 'Privacy Badger', requests: 789 }
-            ]" />
+          <ag-grid-vue
+            :rowData="extensionLogs"
+            :columnDefs="extensionLogColDefs"
+            :gridOptions="gridOptions"
+            style="height: 500px"
+            class="ag-theme-quartz">
+          </ag-grid-vue>
         </section>
       </div>
     </div>
@@ -110,34 +114,78 @@
 </template>
 
 <script setup lang="ts">
+import "ag-grid-community/styles/ag-grid.css"
+import "ag-grid-community/styles/ag-theme-quartz.css"
 import "~main.css"
 
-import { onMounted, ref } from "vue"
+import type { GridOptions } from "ag-grid-community"
+import { AgGridVue } from "ag-grid-vue3"
+import { onMounted, ref, watchEffect, type Ref } from "vue"
 
-import TheTable from "~components/TheTable.vue"
+import type { Extension, ExtensionLog } from "~utils/interfaces"
 
-const extensions = ref([])
+const extensions: Ref<Extension[]> = ref([])
+const extensionLogs: Ref<ExtensionLog[]> = ref([])
+
+const extensionColDefs = ref([
+  { field: "id" },
+  { field: "name" },
+  { field: "description" }
+])
+
+const extensionLogColDefs = ref([
+  { field: "extension" },
+  // { field: "id" },
+  { field: "url" },
+  { field: "method" },
+  { field: "resourceType" },
+  { field: "verdict" }
+])
+
+const gridOptions: GridOptions = {
+  autoSizeStrategy: { type: "fitCellContents" },
+  defaultColDef: {
+    filter: "agTextColumnFilter",
+    floatingFilter: true
+  },
+  pagination: true,
+  paginationPageSize: 25,
+  paginationPageSizeSelector: [25, 50, 75, 100, 125, 150, 175, 200]
+}
 
 onMounted(async () => {
   extensions.value = await getExtensions()
+
+  chrome.storage.local.get((s) => {
+    console.warn(s)
+    extensionLogs.value = s?.extensionLogs || []
+  })
 })
 
-async function getExtensions() {
-  const extensions = []
+watchEffect(() => {
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === "local" && changes.extensionLogs) {
+      extensionLogs.value = changes.extensionLogs.newValue || []
+    }
+  })
+})
+
+async function getExtensions(): Promise<Extension[]> {
+  const exts: Extension[] = []
   const hasPerm = await chrome.permissions.contains({
     permissions: ["management"]
   })
   if (!hasPerm) return []
   const extInfo = await chrome.management.getAll()
   for (let { id, name, description } of extInfo) {
-    const extension = {
+    const extension: Extension = {
       id,
       name,
       description
       // icon: icons?.[icons?.length - 1]?.url,
     }
-    extensions.push(extension)
+    exts.push(extension)
   }
-  return extensions
+  return exts
 }
 </script>
