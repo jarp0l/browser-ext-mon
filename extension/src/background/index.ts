@@ -20,6 +20,7 @@ let allRuleIds = [1]
 let extensionLogs: ExtensionLog[] = []
 
 let apiBaseUrl = "http://localhost:1337"
+let apiKey = null
 
 chrome.storage.local.get((s) => {
   // muted = s?.muted || {}
@@ -31,8 +32,9 @@ chrome.storage.local.get((s) => {
   blockedExtUrls = s?.blockedExtUrls || {}
   requests = s?.requests || {}
 
-  console.log("Loaded extension logs: ", s)
   extensionLogs = s?.extensionLogs || []
+  apiKey = s?.apiKey || null
+  console.log("Loaded local storage: ", s)
 })
 
 /**
@@ -151,7 +153,7 @@ async function setupListener() {
         verdict: analysisResult.verdict
       })
 
-      // console.log("Extension logs: ", extensionLogs)
+      console.log("Extension logs: ", extensionLogs)
 
       needSave = true
 
@@ -348,3 +350,41 @@ setupListener()
 chrome.runtime.onInstalled.addListener(() => {
   chrome.runtime.openOptionsPage()
 })
+
+// const eventSource = new EventSource(`https://ntfy.sh/bem-${apiKey}/sse`)
+// eventSource.onmessage = (e) => {
+//   console.log(e.data)
+// }
+
+const pbApiUrl = "http://localhost:8090/api"
+async function getBlacklist(req) {
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      apiKey: req.apiKey
+    })
+  }
+
+  try {
+    const res = await fetch(
+      `${pbApiUrl}/collections/blacklist/records`,
+      options
+    )
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`)
+    }
+    const { data } = (await res.json()) as AnalysisResponse
+    return data
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
+// setInterval(async () => {
+//   const blacklist = await getBlacklist({ apiKey })
+//   // chrome.management.uninstall()
+// }, 5000)
