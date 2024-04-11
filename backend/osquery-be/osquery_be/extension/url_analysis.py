@@ -8,17 +8,88 @@ from osquery_be.settings import settings
 from tld import get_tld
 
 
-def have_IP(url):
-    match = re.search(
-        "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
-        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|"  # IPv4
-        "((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)"  # IPv4 in hexadecimal
-        "(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}",
-        url,
-    )  # Ipv6
-    if match:
-        return 1
-    return 0
+def remove_www(url):
+    url = re.sub(r"^www\.", "", url)
+    return url
+
+
+def length_of_url(url):
+    url_length = len(url)
+    return url_length
+
+
+def process_tld(url):
+    try:
+        res = get_tld(url, as_object=True, fail_silently=False, fix_protocol=True)
+        pri_domain = res.parsed_url.netloc
+    except:
+        pri_domain = None
+    return pri_domain
+
+
+def count_atrate(url):
+    count_atrate = url.count("@")
+    return count_atrate
+
+
+def count_question(url):
+    count_ques = url.count("?")
+    return count_ques
+
+
+def count_dash(url):
+    count_dash = url.count("-")
+    return count_dash
+
+
+def count_equal(url):
+    count_equal = url.count("=")
+    return count_equal
+
+
+def count_dots(url):
+    count_dot = url.count(".")
+    return count_dot
+
+
+def count_hash(url):
+    count_hash = url.count("#")
+    return count_hash
+
+
+def count_percent(url):
+    count_percent = url.count("%")
+    return count_percent
+
+
+def count_plus(url):
+    count_plus = url.count("+")
+    return count_plus
+
+
+def count_dollar(url):
+    count_dollar = url.count("$")
+    return count_dollar
+
+
+def count_exc(url):
+    count_exc = url.count("!")
+    return count_exc
+
+
+def count_ast(url):
+    count_ast = url.count("*")
+    return count_ast
+
+
+def count_comma(url):
+    count_comma = url.count(",")
+    return count_comma
+
+
+def no_of_embed(url):
+    urldir = url.count("//")
+    return urldir
 
 
 def abnormal_url(url):
@@ -28,27 +99,27 @@ def abnormal_url(url):
     return 1 if match else 0
 
 
-def count_dots(url):
-    count_dot = url.count(".")
-    return count_dot
+def httpSecure(url):
+    htp = urlparse(url).scheme
+    match = str(htp)
+    if match == "https":
+        # print match.group()
+        return 1
+    else:
+        # print 'No matching pattern found'
+        return 0
 
 
-# count the number of '@' in the URL
-def count_atrate(url):
-    count_atrate = url.count("@")
-    return count_atrate
+def digit_count(url):
+    digits = 0
+    digits = sum(1 for i in url if i.isnumeric())
+    return digits
 
 
-# count the number of '/'
-def count_directory(url):
-    count_dir = url.count("/")
-    return count_dir
-
-
-# count the number of '//'
-def no_of_embed(url):
-    urldir = urlparse(url).path
-    return urldir.count("//")
+def letter_count(url):
+    letters = 0
+    letters = sum(1 for i in url if i.isalpha())
+    return letters
 
 
 # check if the url contains any shortnening services
@@ -67,103 +138,46 @@ def shortening_service(url):
     return 1 if match else 0
 
 
-def count_https(url):
-    return url.count("https")
-
-
-def count_http(url):
-    return url.count("http")
-
-
-def count_per(url):
-    return url.count("%")
-
-
-def count_ques(url):
-    return url.count("?")
-
-
-def count_hyphen(url):
-    return url.count("-")
-
-
-def count_equal(url):
-    return url.count("=")
-
-
-def url_length(url):
-    return len(url)
-
-
-# Hostname Length
-def hostname_length(url):
-    return len(urlparse(url).netloc)
-
-
-def suspicious_words(url):
+def have_IP(url):
     match = re.search(
-        "PayPal|login|signin|bank|account|update|free|lucky|service|bonus|ebayisapi|webscr",
+        "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|"  # IPv4
+        "((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)"  # IPv4 in hexadecimal
+        "(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}",
         url,
-    )
-    return 1 if match else 0
-
-
-def digit_count(url):
-    digits = 0
-    digits = sum(1 for i in url if i.isnumeric())
-    return digits
-
-
-def letter_count(url):
-    letters = 0
-    letters = sum(1 for i in url if i.isalpha())
-    return letters
-
-
-def fd_length(url):
-    urlpath = urlparse(url).path
-    try:
-        return len(urlpath.split("/")[1])
-    except Exception as exc:
-        logging.error(f"Error in fd_length: {exc}")
-        return 0
-
-
-def tld_length(tld):
-    try:
-        return len(tld)
-    except Exception as exc:
-        logging.error(f"Error in tld_length: {exc}")
-        return -1
+    )  # Ipv6
+    if match:
+        return 1
+    return 0
 
 
 def preprocessed_data(url):
+    url = re.sub(r"^www\.", "", url)
     status = []
     status.extend(
         [
-            have_IP(url),
-            abnormal_url(url),
-            count_dots(url),
+            length_of_url(url),
             count_atrate(url),
-            count_directory(url),
-            no_of_embed(url),
-            shortening_service(url),
-            count_https(url),
-            count_http(url),
-            count_per(url),
-            count_ques(url),
-            count_hyphen(url),
+            count_question(url),
+            count_dash(url),
             count_equal(url),
-            url_length(url),
-            hostname_length(url),
-            suspicious_words(url),
+            count_dots(url),
+            count_hash(url),
+            count_percent(url),
+            count_plus(url),
+            count_dollar(url),
+            count_exc(url),
+            count_ast(url),
+            count_comma(url),
+            no_of_embed(url),
+            abnormal_url(url),
+            httpSecure(url),
             digit_count(url),
             letter_count(url),
-            fd_length(url),
+            shortening_service(url),
+            have_IP(url),
         ]
     )
-    tld = get_tld(url, fail_silently=True)
-    status.append(tld_length(tld))
     return status
 
 
