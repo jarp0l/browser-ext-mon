@@ -48,7 +48,7 @@ def populate_page():
             [
                 extension
                 for extension in all_chrome_extensions
-                if extension.get("browser_type") == "braver"
+                if extension.get("browser_type") == "brave"
             ]
         )
 
@@ -82,8 +82,8 @@ def populate_page():
     #     ]
     # )
 
-    tabs = st.tabs(["Firefox", "Chrome", "Brave"])
-    with tabs[0]:
+    tabs = st.tabs(["Brave", "Chrome", "Firefox"])
+    with tabs[2]:
         st.subheader("Firefox Extensions")
 
         firefox_grid_options = {
@@ -145,7 +145,7 @@ def populate_page():
             theme="streamlit",
         )
 
-    with tabs[2]:
+    with tabs[0]:
         st.subheader("Brave Extensions")
 
         grid_options.update(chrome_grid_options(brave_df))
@@ -172,17 +172,59 @@ def populate_page():
                 )
                 st.write("Firefox Extension: " + selected_extension["name"][0])
 
+                # if st.button("Add to blacklist", type="primary"):
+                # uninstall_extension(
+                #     selected_extension["node_id"][0],
+                #     selected_extension["identifier"][0],
+                # )
+                st.write(selected_extension)
+
             if selected_row and brave_grid.selected_rows_id:
-                selected_extension = brave_df.iloc[selected_row]
-                "Brave Extension"
-                selected_extension
+                selected_extension = pd.json_normalize(
+                    brave_df.iloc[selected_row].to_dict(orient="records")
+                )
+                st.write("Brave Extension: " + selected_extension["name"][0])
+                # if st.button("Add to blacklist", type="primary"):
+                #     uninstall_extension(
+                #         selected_extension["node_id"][0],
+                #         selected_extension["identifier"][0],
+                #     )
+                st.write(selected_extension)
 
             if selected_row and chrome_grid.selected_rows_id:
-                selected_extension = chrome_df.iloc[selected_row]
-                "Chrome Extension"
-                selected_extension
+                selected_extension = pd.json_normalize(
+                    chrome_df.iloc[selected_row].to_dict(orient="records")
+                )
+                st.write("Chrome Extension: " + selected_extension["name"][0])
+                # if st.button("Add to blacklist", type="primary"):
+                #     uninstall_extension(
+                #         selected_extension["node_id"][0],
+                #         selected_extension["identifier"][0],
+                #     )
+                st.write(selected_extension)
     except Exception:
         pass
+
+
+def uninstall_extension(node_id, extension_id):
+    node_id = node_id
+    extension_id = extension_id
+
+    # use pocketbase instead of dragonfly
+
+    # blacklist = get_blacklist_for_node(node_id)
+    # print("Current blacklist: ", blacklist)
+    # if blacklist is None:
+    #     blacklist = []
+    #     blacklist.append(extension_id)
+    #     print("Created blacklist: ", blacklist)
+    # else:
+    #     if extension_id not in blacklist:
+    #         blacklist.append(extension_id)
+    #         print("Appended to blacklist: ", blacklist)
+    # blacklist.append(extension_id)
+    # set_blacklist_for_node(node_id, blacklist)
+    # print("Updated blacklist: ", blacklist)
 
 
 def build_page():
