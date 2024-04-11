@@ -20,7 +20,7 @@
               </span>
             </p>
           </div>
-          <a class="panel-block" href="#overview">
+          <a class="panel-block" href="#">
             <span class="panel-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                 <!-- !Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
