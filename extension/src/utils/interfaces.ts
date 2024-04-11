@@ -1,6 +1,8 @@
 export enum AnalysisVerdict {
-  GOOD = "good",
-  BAD = "bad"
+  SAFE = "safe",
+  DEFACEMENT = "defacement",
+  PHISHING = "phishing",
+  MALWARE = "malware"
 }
 
 export enum RequestMethod {
@@ -35,7 +37,7 @@ export interface Extension {
 
 export interface ExtensionLog {
   extension: string
-//   id: string
+  //   id: string
   method: string
   url: string
   resourceType: string

@@ -68,19 +68,21 @@
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Total requests</p>
-                  <p class="title">123</p>
+                  <p class="title">
+                    {{ statsCount.malicious + statsCount.safe }}
+                  </p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Allowed</p>
-                  <p class="title">100</p>
+                  <p class="title">{{ statsCount.safe }}</p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Blocked</p>
-                  <p class="title">23</p>
+                  <p class="title">{{ statsCount.malicious }}</p>
                 </div>
               </div>
             </nav>
@@ -118,14 +120,17 @@ import "ag-grid-community/styles/ag-grid.css"
 import "ag-grid-community/styles/ag-theme-quartz.css"
 import "~main.css"
 
+import { watch } from "fs"
 import type { GridOptions } from "ag-grid-community"
 import { AgGridVue } from "ag-grid-vue3"
 import { onMounted, ref, watchEffect, type Ref } from "vue"
 
 import type { Extension, ExtensionLog } from "~utils/interfaces"
+import { AnalysisVerdict } from "~utils/interfaces"
 
 const extensions: Ref<Extension[]> = ref([])
 const extensionLogs: Ref<ExtensionLog[]> = ref([])
+const statsCount = ref({ safe: 0, malicious: 0 })
 
 const extensionColDefs = ref([
   { field: "id" },
@@ -160,6 +165,8 @@ onMounted(async () => {
     console.warn(s)
     extensionLogs.value = s?.extensionLogs || []
   })
+
+  statsCount.value = countRequests(extensionLogs.value)
 })
 
 watchEffect(() => {
@@ -169,6 +176,32 @@ watchEffect(() => {
     }
   })
 })
+
+watchEffect(() => {
+  statsCount.value = countRequests(extensionLogs.value)
+})
+
+function countRequests(logs: ExtensionLog[]): {
+  safe: number
+  malicious: number
+} {
+  let safeCount = 0
+  let maliciousCount = 0
+
+  for (const log of logs) {
+    if (log.verdict === AnalysisVerdict.SAFE) {
+      safeCount++
+    } else if (
+      log.verdict === AnalysisVerdict.MALWARE ||
+      log.verdict === AnalysisVerdict.PHISHING ||
+      log.verdict === AnalysisVerdict.DEFACEMENT
+    ) {
+      maliciousCount++
+    }
+  }
+
+  return { safe: safeCount, malicious: maliciousCount }
+}
 
 async function getExtensions(): Promise<Extension[]> {
   const exts: Extension[] = []
