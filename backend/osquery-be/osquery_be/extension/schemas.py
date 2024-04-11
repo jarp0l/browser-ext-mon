@@ -68,3 +68,7 @@ class AnalysisResponse(BaseModel):
             ]
         }
     }
+
+
+class ApiKeyRequest(BaseModel):
+    api_key: str = Field(..., alias="apiKey")
