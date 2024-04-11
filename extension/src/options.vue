@@ -1,4 +1,33 @@
 <template>
+  <!-- <section class="section" v-if="apiKey === null"> -->
+  <section class="section">
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column is-half">
+        <div class="notification is-success" v-if="apiKeyNotif">
+          API Key has been set!
+        </div>
+        <div v-else>
+          <div class="field">
+            <label class="label">Enter API Key</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                placeholder="API Key"
+                v-model="apiKey" />
+            </div>
+            <p class="help">Please enter your organization API key</p>
+          </div>
+          <div class="control">
+            <button class="button is-link" @click="setApiKey">Submit</button>
+          </div>
+        </div>
+      </div>
+      <div class="column"></div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="columns">
       <div class="column is-one-quarter" id="sidebar">
@@ -125,6 +154,7 @@ import type { GridOptions } from "ag-grid-community"
 import { AgGridVue } from "ag-grid-vue3"
 import { onMounted, ref, watchEffect, type Ref } from "vue"
 
+
 import type { Extension, ExtensionLog } from "~utils/interfaces"
 import { AnalysisVerdict } from "~utils/interfaces"
 
@@ -158,12 +188,20 @@ const gridOptions: GridOptions = {
   paginationPageSizeSelector: [25, 50, 75, 100, 125, 150, 175, 200]
 }
 
+const apiKey = ref(null)
+const apiKeyNotif = ref(false)
+
+// const setApiKey = async (key) => {
+//   await storage.set("apiKey", key)
+// }
+
 onMounted(async () => {
   extensions.value = await getExtensions()
 
   chrome.storage.local.get((s) => {
     console.warn(s)
     extensionLogs.value = s?.extensionLogs || []
+    apiKey.value = s?.apiKey || null
   })
 
   statsCount.value = countRequests(extensionLogs.value)
@@ -220,5 +258,45 @@ async function getExtensions(): Promise<Extension[]> {
     exts.push(extension)
   }
   return exts
+}
+
+let apiBaseUrl = "http://localhost:1337"
+
+async function checkApiKey(req) {
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      apiKey: req.apiKey
+    })
+  }
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/extension/apikey`, options)
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`)
+    }
+    const { data } = await res.json()
+    return data
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
+function setApiKey() {
+  console.log("Setting API Key")
+  console.log(apiKey.value)
+
+  const apiKeyResult = checkApiKey({
+    apiKey: apiKey.value
+  })
+  if (apiKeyResult) {
+    // storage.set("apiKey", apiKey.value)
+    chrome.storage.local.set({ apiKey: apiKey.value })
+    apiKeyNotif.value = true
+  }
 }
 </script>
