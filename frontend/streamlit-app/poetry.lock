@@ -827,13 +827,13 @@ files = [
 
 [[package]]
 name = "redis"
-version = "5.0.3"
+version = "5.0.5"
 description = "Python client for Redis database and key-value store"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "redis-5.0.3-py3-none-any.whl", hash = "sha256:5da9b8fe9e1254293756c16c008e8620b3d15fcc6dde6babde9541850e72a32d"},
-    {file = "redis-5.0.3.tar.gz", hash = "sha256:4973bae7444c0fbed64a06b87446f79361cb7e4ec1538c022d696ed7a5015580"},
+    {file = "redis-5.0.5-py3-none-any.whl", hash = "sha256:30b47d4ebb6b7a0b9b40c1275a19b87bb6f46b3bed82a89012cf56dea4024ada"},
+    {file = "redis-5.0.5.tar.gz", hash = "sha256:3417688621acf6ee368dec4a04dd95881be24efd34c79f00d31f62bb528800ae"},
 ]
 
 [package.dependencies]
@@ -1238,4 +1238,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "715138a9d538fbb3108ff8ae2bc7582d1c0aba47ab4e04545f18fa0383fa53f7"
+content-hash = "d7db16965234024fbb9a67f5ae72256866cbca46886ac053ba69ba2500c5bed8"
