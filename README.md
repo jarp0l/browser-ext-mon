@@ -50,6 +50,27 @@ Keywords: *web browser extensions, security, monitoring, artificial intelligence
   - To use Machine Learning (ML) to detect phishing, defacement attacks, drive by download attack which installs malware conducted by browser extensions through URL.
   - To detect potentially vulnerable/malicious extensions through ruled-based scoring metrics.
 
+
+## Screenshots
+
+> :warning: **Warning:** Not all the screenshots show the latest versions/changes.
+
+
+CLI Tool:
+[bem-cli tool](./assets/bemcli_help.png)
+
+Dashboard:
+[Dashboard summary](./assets/dashboard.png)
+
+[Chrome extensions](./assets/chrome_extensions.png)
+
+[Firefox extensions](./assets/firefox_extensions.png)
+
+
+The extension:
+[Our extension](./assets/extension.png)
+
+
 ---
 
 ## Contributors
