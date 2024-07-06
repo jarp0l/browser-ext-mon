@@ -57,18 +57,20 @@ Keywords: *web browser extensions, security, monitoring, artificial intelligence
 
 
 CLI Tool:
-[bem-cli tool](./assets/bemcli_help.png)
+
+<img src="./assets/bemcli_help.png" alt="bem-cli tool" width="70%" />
+
 
 Dashboard:
-[Dashboard summary](./assets/dashboard.png)
+![Dashboard summary](./assets/dashboard.png)
 
-[Chrome extensions](./assets/chrome_extensions.png)
+![Chrome extensions](./assets/chrome_extensions.png)
 
-[Firefox extensions](./assets/firefox_extensions.png)
+![Firefox extensions](./assets/firefox_extensions.png)
 
 
 The extension:
-[Our extension](./assets/extension.png)
+![Our extension](./assets/extension.png)
 
 
 ---
