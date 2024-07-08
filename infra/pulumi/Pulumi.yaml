@@ -1,0 +1,7 @@
+name: bem-infra
+runtime: go
+description: BEM infra in pulumi
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-go
