@@ -1,0 +1,43 @@
+shape: sequence_diagram
+# bem-cli -> osquery-be: 
+bem-cli -> bem-cli: setup api_key and device owner_email
+osqueryd
+# bem-cli.t -> osquery-be.x: validate api_key
+# osquery-be.x -> pocketbase-be: validate api_key
+# pocketbase-be -> sqlite: check api_key
+# pocketbase-be <- sqlite: api_key exists
+# osquery-be.x <- pocketbase-be: api_key is valid
+
+# bem-cli.t <- osquery-be.x: successfully validated
+bem-cli.t2 -> osqueryd: launch osqueryd
+
+osqueryd.t1 -> osquery-be.a: enroll node
+osquery-be.a -> pocketbase-be: register node
+pocketbase-be -> sqlite: add node
+# pocketbase-be <- sqlite: node exists
+# osquery-be.a <- pocketbase-be: node is valid
+osqueryd.t1 <- osquery-be.a: return node_key on success
+osqueryd.t1 -> osquery-be.a: get config
+osqueryd.t1 <- osquery-be.a: return queries to run
+osqueryd.t1 -> osquery-be.a: send results of queries
+osquery-be.a -> pocketbase-be: parse and send results of queries
+pocketbase-be -> sqlite: store results
+
+# osquery-be.t2 -> pocketbase-be: sends node information using apikey
+# osquery-be.t2 <- pocketbase-be: sends org_id to osquery-be
+# osquery-be.t2 -> pocketbase-be: sends firefox and chrome extensions details using node_id
+
+pocketbase-be
+# osquery-be.t2 -> pocketbase-node: insert nodes information
+# osquery-be.t2 -> pocketbase-firefox: insert firefox extension from device
+# osquery-be.t2 -> pocketbase-chrome: insert chrome information from device
+streamlit-app.t1 -> pocketbase-be.t1: login/signup and create org
+pocketbase-be.t1 -> sqlite: create user and org if not exists
+streamlit-app.t1 <- pocketbase-be.t1: return auth token
+pocketbase-be.t1 <- streamlit-app.t1: access user data
+pocketbase-be.t1 <- sqlite: get user data
+
+sqlite
+# pocketbase-be -> sqlite: store data
+streamlit-app -> redis(cache): cache data
+redis(cache)
