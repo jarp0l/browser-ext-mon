@@ -1,7 +1,36 @@
 <template>
+  <!-- <section class="section" v-if="apiKey === null"> -->
   <section class="section">
     <div class="columns">
-      <div class="column is-one-quarter">
+      <div class="column"></div>
+      <div class="column is-half">
+        <div class="notification is-success" v-if="apiKeyNotif">
+          API Key has been set!
+        </div>
+        <div v-else>
+          <div class="field">
+            <label class="label">Enter API Key</label>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                placeholder="API Key"
+                v-model="apiKey" />
+            </div>
+            <p class="help">Please enter your organization API key</p>
+          </div>
+          <div class="control">
+            <button class="button is-link" @click="setApiKey">Submit</button>
+          </div>
+        </div>
+      </div>
+      <div class="column"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="columns">
+      <div class="column is-one-quarter" id="sidebar">
         <aside class="panel is-danger">
           <p class="panel-heading has-text-centered">BEM Security</p>
           <div class="panel-block">
@@ -20,7 +49,7 @@
               </span>
             </p>
           </div>
-          <a class="panel-block" href="#overview">
+          <a class="panel-block" href="#">
             <span class="panel-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                 <!-- !Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc. -->
@@ -56,7 +85,7 @@
       </div>
 
       <div class="column" id="overview">
-        <div class="card">
+        <div class="card" id="statistics">
           <div class="card-content">
             <nav class="level">
               <div class="level-item has-text-centered">
@@ -68,19 +97,21 @@
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Total requests</p>
-                  <p class="title">123</p>
+                  <p class="title">
+                    {{ statsCount.malicious + statsCount.safe }}
+                  </p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Allowed</p>
-                  <p class="title">100</p>
+                  <p class="title">{{ statsCount.safe }}</p>
                 </div>
               </div>
               <div class="level-item has-text-centered">
                 <div>
                   <p class="heading">Blocked</p>
-                  <p class="title">23</p>
+                  <p class="title">{{ statsCount.malicious }}</p>
                 </div>
               </div>
             </nav>
@@ -89,20 +120,24 @@
 
         <section class="section" id="installed-extensions">
           <h1 class="title">Installed Extensions</h1>
-          <TheTable
-            :columns="['id', 'name', 'description']"
-            :rows="extensions" />
+          <ag-grid-vue
+            :rowData="extensions"
+            :columnDefs="extensionColDefs"
+            :gridOptions="gridOptions"
+            style="height: 500px"
+            class="ag-theme-quartz">
+          </ag-grid-vue>
         </section>
 
         <section class="section" id="network-traffic-log">
           <h1 class="title">Network Traffic Log</h1>
-          <TheTable
-            :columns="['id', 'name', 'requests']"
-            :rows="[
-              { id: 1, name: 'Adblock', requests: 123 },
-              { id: 2, name: 'Ghostery', requests: 456 },
-              { id: 3, name: 'Privacy Badger', requests: 789 }
-            ]" />
+          <ag-grid-vue
+            :rowData="extensionLogs"
+            :columnDefs="extensionLogColDefs"
+            :gridOptions="gridOptions"
+            style="height: 500px"
+            class="ag-theme-quartz">
+          </ag-grid-vue>
         </section>
       </div>
     </div>
@@ -110,34 +145,158 @@
 </template>
 
 <script setup lang="ts">
+import "ag-grid-community/styles/ag-grid.css"
+import "ag-grid-community/styles/ag-theme-quartz.css"
 import "~main.css"
 
-import { onMounted, ref } from "vue"
+import { watch } from "fs"
+import type { GridOptions } from "ag-grid-community"
+import { AgGridVue } from "ag-grid-vue3"
+import { onMounted, ref, watchEffect, type Ref } from "vue"
 
-import TheTable from "~components/TheTable.vue"
 
-const extensions = ref([])
+import type { Extension, ExtensionLog } from "~utils/interfaces"
+import { AnalysisVerdict } from "~utils/interfaces"
+
+const extensions: Ref<Extension[]> = ref([])
+const extensionLogs: Ref<ExtensionLog[]> = ref([])
+const statsCount = ref({ safe: 0, malicious: 0 })
+
+const extensionColDefs = ref([
+  { field: "id" },
+  { field: "name" },
+  { field: "description" }
+])
+
+const extensionLogColDefs = ref([
+  { field: "extension" },
+  // { field: "id" },
+  { field: "url" },
+  { field: "method" },
+  { field: "resourceType" },
+  { field: "verdict" }
+])
+
+const gridOptions: GridOptions = {
+  autoSizeStrategy: { type: "fitCellContents" },
+  defaultColDef: {
+    filter: "agTextColumnFilter",
+    floatingFilter: true
+  },
+  pagination: true,
+  paginationPageSize: 25,
+  paginationPageSizeSelector: [25, 50, 75, 100, 125, 150, 175, 200]
+}
+
+const apiKey = ref(null)
+const apiKeyNotif = ref(false)
+
+// const setApiKey = async (key) => {
+//   await storage.set("apiKey", key)
+// }
 
 onMounted(async () => {
   extensions.value = await getExtensions()
+
+  chrome.storage.local.get((s) => {
+    console.warn(s)
+    extensionLogs.value = s?.extensionLogs || []
+    apiKey.value = s?.apiKey || null
+  })
+
+  statsCount.value = countRequests(extensionLogs.value)
 })
 
-async function getExtensions() {
-  const extensions = []
+watchEffect(() => {
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === "local" && changes.extensionLogs) {
+      extensionLogs.value = changes.extensionLogs.newValue || []
+    }
+  })
+})
+
+watchEffect(() => {
+  statsCount.value = countRequests(extensionLogs.value)
+})
+
+function countRequests(logs: ExtensionLog[]): {
+  safe: number
+  malicious: number
+} {
+  let safeCount = 0
+  let maliciousCount = 0
+
+  for (const log of logs) {
+    if (log.verdict === AnalysisVerdict.SAFE) {
+      safeCount++
+    } else if (
+      log.verdict === AnalysisVerdict.MALWARE ||
+      log.verdict === AnalysisVerdict.PHISHING ||
+      log.verdict === AnalysisVerdict.DEFACEMENT
+    ) {
+      maliciousCount++
+    }
+  }
+
+  return { safe: safeCount, malicious: maliciousCount }
+}
+
+async function getExtensions(): Promise<Extension[]> {
+  const exts: Extension[] = []
   const hasPerm = await chrome.permissions.contains({
     permissions: ["management"]
   })
   if (!hasPerm) return []
   const extInfo = await chrome.management.getAll()
   for (let { id, name, description } of extInfo) {
-    const extension = {
+    const extension: Extension = {
       id,
       name,
       description
       // icon: icons?.[icons?.length - 1]?.url,
     }
-    extensions.push(extension)
+    exts.push(extension)
   }
-  return extensions
+  return exts
+}
+
+let apiBaseUrl = "http://localhost:1337"
+
+async function checkApiKey(req) {
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      apiKey: req.apiKey
+    })
+  }
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/extension/apikey`, options)
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`)
+    }
+    const { data } = await res.json()
+    return data
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
+function setApiKey() {
+  console.log("Setting API Key")
+  console.log(apiKey.value)
+
+  const apiKeyResult = checkApiKey({
+    apiKey: apiKey.value
+  })
+  if (apiKeyResult) {
+    // storage.set("apiKey", apiKey.value)
+    chrome.storage.local.set({ apiKey: apiKey.value })
+    apiKeyNotif.value = true
+  }
 }
 </script>

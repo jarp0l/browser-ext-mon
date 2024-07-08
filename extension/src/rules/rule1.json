@@ -1,6 +1,6 @@
 [
   {
-    "id": 49999,
+    "id": 29999,
     "priority": 1,
     "action": { "type": "allow" },
     "condition": {

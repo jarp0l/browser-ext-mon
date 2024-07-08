@@ -1,3 +1,12 @@
+// import { Storage } from "@plasmohq/storage"
+
+import type {
+  AnalysisRequest,
+  AnalysisResponse,
+  ExtensionLog
+} from "~utils/interfaces"
+import { AnalysisVerdict } from "~utils/interfaces"
+
 let requests: object = {}
 let needSave: boolean = false
 // let muted: boolean = false;
@@ -8,29 +17,10 @@ let recycleRuleIds = []
 let maxRuleId = 1
 let allRuleIds = [1]
 
+let extensionLogs: ExtensionLog[] = []
+
 let apiBaseUrl = "http://localhost:1337"
-
-interface AnalysisRequest {
-  reqMethod: string
-  reqUrl: string
-  resourceType: string
-  reqId: string
-  extensionId: string
-}
-
-interface AnalysisResponse {
-  data: {
-    requestId: string
-    extensionId: string
-    verdict: AnalysisVerdict
-    reason: string
-  }
-}
-
-enum AnalysisVerdict {
-  GOOD = "good",
-  BAD = "bad"
-}
+let apiKey = null
 
 chrome.storage.local.get((s) => {
   // muted = s?.muted || {}
@@ -41,6 +31,10 @@ chrome.storage.local.get((s) => {
   allRuleIds = s?.allRuleIds || [1]
   blockedExtUrls = s?.blockedExtUrls || {}
   requests = s?.requests || {}
+
+  extensionLogs = s?.extensionLogs || []
+  apiKey = s?.apiKey || null
+  console.log("Loaded local storage: ", s)
 })
 
 /**
@@ -94,6 +88,22 @@ async function performAnalysis(
   }
 }
 
+async function generateRuleId(extId) {
+  extRuleIds[extId] = extRuleIds[extId] ?? []
+  let ruleId
+  if (recycleRuleIds.length > 0) {
+    ruleId = recycleRuleIds.pop()
+  } else {
+    ruleId = ++maxRuleId
+  }
+  extRuleIds[extId].push(ruleId)
+  extRuleIds[extId] = Array.from(new Set(extRuleIds[extId]))
+  allRuleIds.push(ruleId)
+  allRuleIds = Array.from(new Set(allRuleIds))
+  await chrome.storage.local.set({ extRuleIds, maxRuleId, allRuleIds })
+  return ruleId
+}
+
 async function setupListener() {
   const hasPerm = await chrome.permissions.contains({
     permissions: ["declarativeNetRequestFeedback"]
@@ -120,12 +130,32 @@ async function setupListener() {
         extensionId
       })
 
+      if (analysisResult === null) {
+        return
+      }
+
       if (
-        analysisResult !== null &&
-        analysisResult.verdict === AnalysisVerdict.BAD
+        analysisResult.verdict === AnalysisVerdict.MALWARE ||
+        analysisResult.verdict === AnalysisVerdict.PHISHING ||
+        analysisResult.verdict === AnalysisVerdict.DEFACEMENT
       ) {
         console.log(`Blocking request from ${extensionId} to ${e.request.url}`)
+        // Block this request
+        chrome.storage.local.set({ blocked })
+        updateBlockedRules(extensionId, e.request.method, e.request.url)
       }
+
+      extensionLogs.push({
+        extension: extensionId,
+        method: e.request.method,
+        url: e.request.url,
+        resourceType: e.request.type,
+        verdict: analysisResult.verdict
+      })
+
+      console.log("Extension logs: ", extensionLogs)
+
+      needSave = true
 
       if (!requests[extensionId]) {
         requests[extensionId] = {
@@ -164,6 +194,14 @@ async function setupListener() {
   })
 }
 
+setInterval(() => {
+  if (needSave) {
+    console.log("Saving to local storage...")
+    chrome.storage.local.set({ extensionLogs })
+    needSave = false
+  }
+}, 1000)
+
 async function getExtensions() {
   const extensions = {}
   const hasPerm = await chrome.permissions.contains({
@@ -188,8 +226,165 @@ async function getExtensions() {
   return extensions
 }
 
-getExtensions().then((exts) => {
-  console.log(exts)
-})
+// getExtensions().then((exts) => {
+//   console.log(exts)
+// })
+
+async function updateBlockedRules(extId, method, url) {
+  if (!blocked[extId] && extId && url) {
+    const urlObj = new URL(url)
+    const blockUrl = [urlObj.protocol, "//", urlObj.host, urlObj.pathname]
+      .filter(Boolean)
+      .join("")
+    if (!blockedExtUrls[extId]) {
+      blockedExtUrls[extId] = {}
+    }
+    blockedExtUrls[extId][blockUrl] = !blockedExtUrls[extId][blockUrl]
+    requests[extId] = requests[extId] ?? {}
+    requests[extId]["reqUrls"] = requests[extId]["reqUrls"] ?? {}
+    Object.entries(requests[extId]["reqUrls"]).forEach(([url, urlInfo]) => {
+      url.indexOf(blockUrl) > -1 &&
+        ((urlInfo as any).isBlocked = blockedExtUrls[extId][blockUrl])
+    })
+
+    Object.entries(blockedExtUrls[extId]).forEach(([url, status]) => {
+      !status && delete blockedExtUrls[extId][url]
+    })
+
+    // d_notifyPopup()
+    await chrome.storage.local.set({ blockedExtUrls })
+    const removeRuleIds = extRuleIds[extId] || []
+    extRuleIds[extId] = []
+    recycleRuleIds = Array.from(new Set(recycleRuleIds.concat(removeRuleIds)))
+    const urlFilters = Object.entries(blockedExtUrls[extId]).map(
+      ([url, status]) => url
+    )
+    const addRules = []
+    for (const url of urlFilters) {
+      addRules.push({
+        id: await generateRuleId(extId),
+        priority: 999,
+        action: { type: "block" },
+        condition: {
+          resourceTypes: [
+            "main_frame",
+            "sub_frame",
+            "stylesheet",
+            "script",
+            "image",
+            "font",
+            "object",
+            "xmlhttprequest",
+            "ping",
+            "csp_report",
+            "media",
+            "websocket",
+            "webtransport",
+            "webbundle",
+            "other"
+          ],
+          domainType: "thirdParty",
+          initiatorDomains: [extId],
+          urlFilter: `${url}*`
+        }
+      })
+    }
+    try {
+      await chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds,
+        addRules
+      })
+      await chrome.storage.local.set({ recycleRuleIds, extRuleIds })
+    } catch (e) {
+      const previousRules = await chrome.declarativeNetRequest.getDynamicRules()
+      console.log({ e, previousRules, removeRuleIds, addRules })
+    }
+  } else {
+    let initiatorDomains = []
+    for (let k in blocked as any) {
+      if (blocked[k]) {
+        initiatorDomains.push(k)
+      }
+    }
+    let addRules
+    if (initiatorDomains.length) {
+      addRules = [
+        {
+          id: 1,
+          priority: 999,
+          action: { type: "block" },
+          condition: {
+            resourceTypes: [
+              "main_frame",
+              "sub_frame",
+              "stylesheet",
+              "script",
+              "image",
+              "font",
+              "object",
+              "xmlhttprequest",
+              "ping",
+              "csp_report",
+              "media",
+              "websocket",
+              "webtransport",
+              "webbundle",
+              "other"
+            ],
+            domainType: "thirdParty",
+            initiatorDomains
+          }
+        }
+      ]
+    }
+
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: [1],
+      addRules
+    })
+  }
+}
 
 setupListener()
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.runtime.openOptionsPage()
+})
+
+// const eventSource = new EventSource(`https://ntfy.sh/bem-${apiKey}/sse`)
+// eventSource.onmessage = (e) => {
+//   console.log(e.data)
+// }
+
+const pbApiUrl = "http://localhost:8090/api"
+async function getBlacklist(req) {
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      apiKey: req.apiKey
+    })
+  }
+
+  try {
+    const res = await fetch(
+      `${pbApiUrl}/collections/blacklist/records`,
+      options
+    )
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`)
+    }
+    const { data } = (await res.json()) as AnalysisResponse
+    return data
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
+// setInterval(async () => {
+//   const blacklist = await getBlacklist({ apiKey })
+//   // chrome.management.uninstall()
+// }, 5000)
